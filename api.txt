@@ -1,0 +1,20 @@
+
+
+ROOM OBJECT
+
+clients {}
+	clientId: client {
+		displayName: display name of this client
+		socket: socket for htis connection
+		roomCode: the roomCode that this player is currently in
+	}
+rooms {}
+	roomCode: room {
+		roomCode : 5 letter
+		hostId: client id of the host
+		hostName: display name of host
+		players: []
+			clientId: client id of this player
+			displayName: display name of this player
+	}
+

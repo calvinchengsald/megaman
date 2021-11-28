@@ -35,7 +35,6 @@ io.on('connection', (socket) => {
     socket.on(ClientMessageActions.JOIN_ROOM, (value) => handleJoinRoom(value));
     socket.on(ClientMessageActions.LEAVE_ROOM, (value) => handleLeaveRoom(value));
     // socket.on('message', (value) => handleMessage(value));
-    socket.on('disconnect', () => console.log('disconnect'));
     socket.on('connect_error', (err) => {
         console.log(`connect_error due to ${err.message}`);
     });
@@ -50,34 +49,73 @@ io.on('connection', (socket) => {
         "method": ServerMessageActions.CONNECT,
         "clientId": clientId
     }
+    socket.on('disconnect', ()=>handleDisconnect(clientId));
     //send back the client connect
     socket.send(JSON.stringify(payLoad))
 });
 
+function handleDisconnect(clientId){
+    console.log("disconnect")
+    console.log(clientId);
+    //remove this player from the room he may be in
+    if(clients[clientId].roomCode){
+        removePlayreFromRoom(clients[clientId].roomCode, clientId)
+        // rooms[roomCode].players = Utility.removeElementFromArrayByKey(rooms[roomCode].players, "clientId", clientId)
+        // // broadcast the updated room
+        // clients[clientId].socket.to("room_"+roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
+    }
+    //clean up this client
+    delete clients[clientId]
+    console.log("all clients")
+    console.log(clients)
+}
 
+// handle events when a player leaves the room
 function handleLeaveRoom(message){
     const messageJson = JSON.parse(message)
-    const targetRoom = messageJson.roomCode
     const clientId = messageJson.clientId
-    //remove the target client from this room
+    removePlayreFromRoom(messageJson.roomCode, messageJson.clientId)
+    
+    // broadcast the updated room
+    // clients[clientId].socket.emit("ROOM_UPDATE_LEAVE", JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
+    // clients[clientId].socket.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
+    // clients[clientId].socket.leave("room_"+messageJson.roomCode)
+}
+
+// removing player with 'clientId' from room with 'roomCode'
+// cleanup the room is there are no other players
+// transfer host if host left
+function removePlayreFromRoom(roomCode, clientId){
     // does this room exists?
-    if(!rooms[messageJson.roomCode]) {
+    if(!rooms[roomCode]) {
         console.log("this room doesnt exist");
-        clients[clientId].socket.emit(ServerMessageActions.ERROR, JSON.stringify(Utility.basicJson("message", "This room doesnt exists")))
         return;
     }
-    console.log('before remove')
-    console.log(rooms[messageJson.roomCode].players)
-    rooms[messageJson.roomCode].players = Utility.removeElementFromArrayByKey(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)
-    
-    console.log('after remove')
-    console.log(rooms[messageJson.roomCode].players)
-    // broadcast the updated room
-    clients[clientId].socket.emit("ROOM_UPDATE_LEAVE", JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
-    clients[clientId].socket.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
-    clients[clientId].socket.leave("room_"+messageJson.roomCode)
 
+    rooms[roomCode].players = Utility.removeElementFromArrayByKey(rooms[roomCode].players, "clientId", clientId)
+    //one final leave room event for this client as well as removing them from this room so they dont get future events from here
+    clients[clientId].socket.emit("ROOM_UPDATE_LEAVE", JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
+    clients[clientId].socket.leave("room_"+roomCode)
+    // are there any players left?
+    if(rooms[roomCode].players.length===0){
+        console.log("empty room, delete room")
+        delete rooms[roomCode]
+        console.log("Current Rooms")
+        console.log(rooms)
+        // no need to broadcast this sunce no one else is in this room
+        return
+    }
+    // if we just removed the host, lets pick the next player as host
+    if(rooms[roomCode].hostId===clientId){
+        rooms[roomCode].hostId=rooms[roomCode].players[0].clientId
+        rooms[roomCode].hostName=rooms[roomCode].players[0].displayName
+        console.log("host changed to " + rooms[roomCode].hostName)
+    }
+    //broadcast this room update to everyone
+    clients[clientId].socket.to("room_"+roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
 }
+
+
 function handleDisplayName(message){
     const messageJson = JSON.parse(message)
     clients[messageJson.clientId].displayName = messageJson.displayName;
@@ -103,6 +141,7 @@ function handleCreateRoom(message){
         }]
     }
     rooms[roomCode] = newRoom
+    clients[clientId].roomCode = roomCode
     clients[clientId].socket.join("room_"+roomCode)
     clients[clientId].socket.emit("ROOM_UPDATE", JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
     // clients[clientId].socket.on("room_"+roomCode).emit("ROOM_UPDATE", JSON.stringify(Utility.jsonWithMethod("room", rooms[message.roomCode], ServerMessageActions.JOIN_ROOM)))
@@ -126,6 +165,8 @@ function handleJoinRoom(message){
         clientId: messageJson.clientId,
         displayName: clients[messageJson.clientId].displayName
     }
+    //keep track of the room on player side as well for easy reference when we want to remove the player from the room
+    clients[messageJson.clientId].roomCode = messageJson.roomCode
     console.log("successfully joined room");
     rooms[messageJson.roomCode].players = [...rooms[messageJson.roomCode].players, playerObj]
     // clients[clientId].socket.emit("message", JSON.stringify(Utility.jsonWithMethod("room", rooms[message.roomCode], ServerMessageActions.JOIN_ROOM)))

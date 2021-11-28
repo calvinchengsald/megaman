@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { ServerMessageActions } from './Constants/ServerMessageActions'
 import { ClientMessageActions } from './Constants/ClientMessageActions'
+import spazz from './resources/spazz.png';
 
 import './App.css';
 import { client } from 'websocket';
@@ -137,6 +138,9 @@ function App() {
           <div key={"player_list"+player.clientId}>{player.displayName}</div>
         ))}
         <button onClick={leaveRoom}>Leave Room</button>
+        <div>
+          <img src={spazz} alt="Logo" />
+        </div>
       </div>
   } else {
     currentView = "MENU"
