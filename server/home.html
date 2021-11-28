@@ -1,12 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Page Title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
+    <h1>Ball Game</h1>
+    <button id = 'btnCreate'>New Game</button>
+    <button id = 'btnJoin'>Join Game</button>
+    <input type = 'text' id = 'txtGameId'>
+    <div id  = 'divPlayers'></div>
+    <div id  = 'divBoard'></div>
 
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
+    <script>
+        //HTML elements
+        let clientId = null;
+        let gameId = null;
+        let playerColor = null;
 
+        let ws = new WebSocket("ws://localhost:8080")
+        
+        ws.onmessage = message => {
+            //message.data
+            const response = JSON.parse(message.data);
+            //connect
+            if (response.method === "connect"){
+                clientId = response.clientId;
+                console.log("Client id Set successfully " + clientId)
+            }
+        }
+    </script>
 </body>
 </html>
