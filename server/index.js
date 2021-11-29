@@ -2,6 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
+const { GameBoardConstants: GameBoardConstants }  = require('./Constants/GameBoardConstants');
 const  Utility   = require('./Utils/Utility');
 const express = require('express');
 const app = express();
@@ -34,6 +35,7 @@ io.on('connection', (socket) => {
     socket.on(ClientMessageActions.CREATE_ROOM, (value) => handleCreateRoom(value));
     socket.on(ClientMessageActions.JOIN_ROOM, (value) => handleJoinRoom(value));
     socket.on(ClientMessageActions.LEAVE_ROOM, (value) => handleLeaveRoom(value));
+    socket.on(ClientMessageActions.PLAYER_MOVE, (value) => handlePlayerMove(value));
     // socket.on('message', (value) => handleMessage(value));
     socket.on('connect_error', (err) => {
         console.log(`connect_error due to ${err.message}`);
@@ -53,6 +55,32 @@ io.on('connection', (socket) => {
     //send back the client connect
     socket.send(JSON.stringify(payLoad))
 });
+
+function handlePlayerMove(message){
+    console.log("got message to move")
+    const messageJson = JSON.parse(message)
+    messageJson.clientId
+
+    // target room
+    var targetPlayer = Utility.getFromArray(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)
+    if(targetPlayer){
+        if(messageJson.MOVE_UP){
+            targetPlayer.y -= GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+        }
+        if(messageJson.MOVE_DOWN){
+            targetPlayer.y += GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+        }
+        if(messageJson.MOVE_LEFT){
+            targetPlayer.x -= GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+        }
+        if(messageJson.MOVE_RIGHT){
+            targetPlayer.x += GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+        }
+        io.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
+        // clients[clientId].socket.to("room_"+roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
+    }
+
+}
 
 function handleDisconnect(clientId){
     console.log("disconnect")
@@ -75,11 +103,6 @@ function handleLeaveRoom(message){
     const messageJson = JSON.parse(message)
     const clientId = messageJson.clientId
     removePlayreFromRoom(messageJson.roomCode, messageJson.clientId)
-    
-    // broadcast the updated room
-    // clients[clientId].socket.emit("ROOM_UPDATE_LEAVE", JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
-    // clients[clientId].socket.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
-    // clients[clientId].socket.leave("room_"+messageJson.roomCode)
 }
 
 // removing player with 'clientId' from room with 'roomCode'
@@ -137,7 +160,9 @@ function handleCreateRoom(message){
         hostName: clients[clientId].displayName,
         players: [{
             clientId: clientId,
-            displayName: clients[clientId].displayName
+            displayName: clients[clientId].displayName,
+            x: 0.5,
+            y: 0.5
         }]
     }
     rooms[roomCode] = newRoom
@@ -163,7 +188,9 @@ function handleJoinRoom(message){
     }
     const playerObj = {
         clientId: messageJson.clientId,
-        displayName: clients[messageJson.clientId].displayName
+        displayName: clients[messageJson.clientId].displayName,
+        x: 0.5,
+        y: 0.5
     }
     //keep track of the room on player side as well for easy reference when we want to remove the player from the room
     clients[messageJson.clientId].roomCode = messageJson.roomCode

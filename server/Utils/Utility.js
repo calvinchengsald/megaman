@@ -13,6 +13,19 @@ function existsInArray(array, primaryKeyName, value){
     }
 }
 
+// same as existsInArray but returns the actual value
+function getFromArray(array, primaryKeyName, value){
+    try {
+        for( var i = 0; i < array.length; i++){
+            if (array[i][primaryKeyName].trim() === value.trim() ) return array[i];
+        }
+        return null;
+    }
+    catch (error ) {
+        return false;
+    }
+}
+
 // from the input 'array' find the object with field name 'primaryKeyName' that has the value 'primaryKeyValue' and remove it
 function removeElementFromArrayByKey( array , primaryKeyName, primaryKeyValue) {
     var newArray = [];
@@ -48,5 +61,6 @@ module.exports = {
     generateRandomLetterString: generateRandomLetterString,
     basicJson: basicJson,
     existsInArray: existsInArray,
-    removeElementFromArrayByKey: removeElementFromArrayByKey
+    removeElementFromArrayByKey: removeElementFromArrayByKey,
+    getFromArray: getFromArray
 }
