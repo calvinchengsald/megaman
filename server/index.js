@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
 const { GameBoardConstants: GameBoardConstants }  = require('./Constants/GameBoardConstants');
+const { NoEscape: NoEscape }  = require('./Games/NoEscape');
 const  Utility   = require('./Utils/Utility');
 const express = require('express');
 const app = express();
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 
 const clients = {}
 const rooms = {}
+const games = {}
 
 
 io.on('connection', (socket) => {
@@ -64,20 +66,10 @@ function handlePlayerMove(message){
     // target room
     var targetPlayer = Utility.getFromArray(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)
     if(targetPlayer){
-        if(messageJson.MOVE_UP){
-            targetPlayer.y -= GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
-        }
-        if(messageJson.MOVE_DOWN){
-            targetPlayer.y += GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
-        }
-        if(messageJson.MOVE_LEFT){
-            targetPlayer.x -= GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
-        }
-        if(messageJson.MOVE_RIGHT){
-            targetPlayer.x += GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
-        }
-        io.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
-        // clients[clientId].socket.to("room_"+roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
+        targetPlayer.MOVE_UP = messageJson.MOVE_UP
+        targetPlayer.MOVE_DOWN = messageJson.MOVE_DOWN
+        targetPlayer.MOVE_LEFT = messageJson.MOVE_LEFT
+        targetPlayer.MOVE_RIGHT = messageJson.MOVE_RIGHT
     }
 
 }
@@ -123,6 +115,8 @@ function removePlayreFromRoom(roomCode, clientId){
     if(rooms[roomCode].players.length===0){
         console.log("empty room, delete room")
         delete rooms[roomCode]
+        games[roomCode].end()
+        delete games[roomCode]
         console.log("Current Rooms")
         console.log(rooms)
         // no need to broadcast this sunce no one else is in this room
@@ -153,6 +147,7 @@ function handleCreateRoom(message){
         roomCode = Utility.generateRandomLetterString(5);
     }
 
+
     // create the room
     const newRoom = {
         roomCode: roomCode,
@@ -163,14 +158,21 @@ function handleCreateRoom(message){
             displayName: clients[clientId].displayName,
             x: 0.5,
             y: 0.5
-        }]
+        }],
     }
+    
+    //create a game object
+    const noEscape = new NoEscape(io, newRoom)
+    games[roomCode] = noEscape
+
     rooms[roomCode] = newRoom
     clients[clientId].roomCode = roomCode
     clients[clientId].socket.join("room_"+roomCode)
     clients[clientId].socket.emit("ROOM_UPDATE", JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
     // clients[clientId].socket.on("room_"+roomCode).emit("ROOM_UPDATE", JSON.stringify(Utility.jsonWithMethod("room", rooms[message.roomCode], ServerMessageActions.JOIN_ROOM)))
    
+    // start the game
+    noEscape.start()
 }
 function handleJoinRoom(message){
     const messageJson = JSON.parse(message)
@@ -206,6 +208,7 @@ function handleJoinRoom(message){
     console.log(sendJson)
     clients[clientId].socket.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",sendJson)
     console.log(rooms[messageJson.roomCode].players)
+
 }
 
 

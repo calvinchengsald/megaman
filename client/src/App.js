@@ -149,6 +149,7 @@ function App() {
         <form onSubmit={connectToServer}>
           <input
             autoFocus value={displayName} placeholder="Display Name"
+            value="Cowvin"
             onChange={(e) => {
               setDisplayName(e.currentTarget.value);
             }}
