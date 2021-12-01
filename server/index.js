@@ -2,7 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
-const { GameBoardConstants: GameBoardConstants }  = require('./Constants/GameBoardConstants');
+const { GameBoardConstants, RoomState, PlayerState, PlayerInputOptions }  = require('./Constants/GameBoardConstants');
 const { NoEscape: NoEscape }  = require('./Games/NoEscape');
 const  Utility   = require('./Utils/Utility');
 const express = require('express');
@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     socket.on(ClientMessageActions.CREATE_ROOM, (value) => handleCreateRoom(value));
     socket.on(ClientMessageActions.JOIN_ROOM, (value) => handleJoinRoom(value));
     socket.on(ClientMessageActions.LEAVE_ROOM, (value) => handleLeaveRoom(value));
-    socket.on(ClientMessageActions.PLAYER_MOVE, (value) => handlePlayerMove(value));
+    socket.on(ClientMessageActions.PLAYER_INPUT, (value) => handlePlayerInput(value));
     // socket.on('message', (value) => handleMessage(value));
     socket.on('connect_error', (err) => {
         console.log(`connect_error due to ${err.message}`);
@@ -58,18 +58,28 @@ io.on('connection', (socket) => {
     socket.send(JSON.stringify(payLoad))
 });
 
-function handlePlayerMove(message){
-    console.log("got message to move")
+function handlePlayerInput(message){
     const messageJson = JSON.parse(message)
     messageJson.clientId
 
-    // target room
-    var targetPlayer = Utility.getFromArray(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)
-    if(targetPlayer){
-        targetPlayer.MOVE_UP = messageJson.MOVE_UP
-        targetPlayer.MOVE_DOWN = messageJson.MOVE_DOWN
-        targetPlayer.MOVE_LEFT = messageJson.MOVE_LEFT
-        targetPlayer.MOVE_RIGHT = messageJson.MOVE_RIGHT
+    switch(messageJson.playerInputAction){
+        case PlayerInputOptions.MOVE:
+            // target room
+            var targetPlayer = Utility.getFromArray(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)
+            if(targetPlayer){
+                targetPlayer.MOVE_UP = messageJson.MOVE_UP
+                targetPlayer.MOVE_DOWN = messageJson.MOVE_DOWN
+                targetPlayer.MOVE_LEFT = messageJson.MOVE_LEFT
+                targetPlayer.MOVE_RIGHT = messageJson.MOVE_RIGHT
+            }
+            break;
+        case PlayerInputOptions.START_GAME:
+            console.log("Game Started")
+            // start the game
+            if(games[messageJson.roomCode]) games[messageJson.roomCode].start()
+            break;
+        default:
+            console.log("unrecognized action: " + messageJson.playerInputAction)
     }
 
 }
@@ -116,9 +126,7 @@ function removePlayreFromRoom(roomCode, clientId){
         console.log("empty room, delete room")
         delete rooms[roomCode]
         games[roomCode].end()
-        delete games[roomCode]
-        console.log("Current Rooms")
-        console.log(rooms)
+        if(games[roomCode]) delete games[roomCode]
         // no need to broadcast this sunce no one else is in this room
         return
     }
@@ -153,11 +161,13 @@ function handleCreateRoom(message){
         roomCode: roomCode,
         hostId: clientId,
         hostName: clients[clientId].displayName,
+        roomState: RoomState.IN_LOBBY,
         players: [{
             clientId: clientId,
             displayName: clients[clientId].displayName,
             x: 0.5,
-            y: 0.5
+            y: 0.5,
+            playerState: PlayerState.READY
         }],
     }
     
@@ -171,8 +181,6 @@ function handleCreateRoom(message){
     clients[clientId].socket.emit("ROOM_UPDATE", JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
     // clients[clientId].socket.on("room_"+roomCode).emit("ROOM_UPDATE", JSON.stringify(Utility.jsonWithMethod("room", rooms[message.roomCode], ServerMessageActions.JOIN_ROOM)))
    
-    // start the game
-    noEscape.start()
 }
 function handleJoinRoom(message){
     const messageJson = JSON.parse(message)
@@ -192,7 +200,8 @@ function handleJoinRoom(message){
         clientId: messageJson.clientId,
         displayName: clients[messageJson.clientId].displayName,
         x: 0.5,
-        y: 0.5
+        y: 0.5,
+        playerState: PlayerState.READY
     }
     //keep track of the room on player side as well for easy reference when we want to remove the player from the room
     clients[messageJson.clientId].roomCode = messageJson.roomCode

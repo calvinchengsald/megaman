@@ -10,11 +10,20 @@ clients {}
 	}
 rooms {}
 	roomCode: room {
+		
 		roomCode : 5 letter
 		hostId: client id of the host
 		hostName: display name of host
+		roomState: IN_LOBBY / IN_GAME
 		players: []
 			clientId: client id of this player
 			displayName: display name of this player
+			x: xCoordinate
+			y: yCoordinate
+			playerState: READY / DEAD / ALIVE
 	}
 
+TODO: 
+	only host can start game
+	high score - keep track of score
+	

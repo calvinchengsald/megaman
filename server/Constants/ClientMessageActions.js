@@ -8,7 +8,7 @@ const ClientMessageActions = {
     CREATE_ROOM: "CREATE_ROOM",
     JOIN_ROOM: "JOIN_ROOM",
     LEAVE_ROOM: "LEAVE_ROOM",
-    PLAYER_MOVE: "PLAYER_MOVE"
+    PLAYER_INPUT: "PLAYER_INPUT"
 }
 
 

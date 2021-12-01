@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import { ServerMessageActions } from './Constants/ServerMessageActions'
 import { ClientMessageActions } from './Constants/ClientMessageActions'
-import { GameBoardConstants, PlayerMoveOptions } from './Constants/GameBoardConstants'
+import { GameBoardConstants, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions } from './Constants/GameBoardConstants'
 import Sprite from './Models/Sprite'
 import spazz from './resources/spazz.png';
+import burst from './resources/burst.png';
 
 import './App.css';
 import { client } from 'websocket';
@@ -75,6 +76,11 @@ function App() {
   const leaveRoom = (e) => {
     emitMsg(ClientMessageActions.LEAVE_ROOM, basicJson("roomCode",currentRoom.roomCode))
   }
+  const startGame = (e) => {
+    const sendJson = basicJson("roomCode",currentRoom.roomCode)
+    sendJson.playerInputAction = PlayerInputOptions.START_GAME
+    emitMsg(ClientMessageActions.PLAYER_INPUT, sendJson )
+  }
   const createRoom = () => {
     emitMsg(ClientMessageActions.CREATE_ROOM, basicJson("",""))
   }
@@ -102,24 +108,29 @@ function App() {
       case 'ArrowRight': 
         if(playerMoveMatrix.MOVE_RIGHT===toggle) return
         copyPlayerMoveMatrix.MOVE_RIGHT=toggle;
+        copyPlayerMoveMatrix.MOVE_LEFT=false;
         break;
       case 'ArrowLeft': 
         if(playerMoveMatrix.MOVE_LEFT===toggle) return
         copyPlayerMoveMatrix.MOVE_LEFT=toggle;
+        copyPlayerMoveMatrix.MOVE_RIGHT=false;
         break;
       case 'ArrowUp': 
         if(playerMoveMatrix.MOVE_UP===toggle) return
         copyPlayerMoveMatrix.MOVE_UP=toggle;
+        copyPlayerMoveMatrix.MOVE_DOWN=false;
         break;
       case 'ArrowDown': 
         if(playerMoveMatrix.MOVE_DOWN===toggle) return
         copyPlayerMoveMatrix.MOVE_DOWN=toggle;
+        copyPlayerMoveMatrix.MOVE_UP=false;
         break;
       default:
         return
     }
     copyPlayerMoveMatrix.roomCode=currentRoom.roomCode
-    emitMsg(ClientMessageActions.PLAYER_MOVE, copyPlayerMoveMatrix)
+    copyPlayerMoveMatrix.playerInputAction=PlayerInputOptions.MOVE
+    emitMsg(ClientMessageActions.PLAYER_INPUT, copyPlayerMoveMatrix)
     setPlayerMoveMatrix(copyPlayerMoveMatrix)
   }
   
@@ -170,6 +181,11 @@ function App() {
             <div key={"player_list"+player.clientId}>{player.displayName}</div>
           ))}
           <button onClick={leaveRoom}>Leave Room</button>
+          { currentRoom.roomState===RoomState.IN_LOBBY?
+            <button onClick={startGame}>Start Game</button>
+            :
+            <div>Game Started</div>
+          }
         </div>
         <div className="game-box" 
           style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}
@@ -177,9 +193,14 @@ function App() {
           onKeyUp={handlePlayerKeyRelease} tabIndex="0"
         >
           <div className="game-board" style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}>
-            {currentRoom && currentRoom.players && currentRoom.players.map((player)=>(
-              <Sprite player={player}></Sprite>
-            ))}
+            {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.players && currentRoom.players.map((player)=>{
+              if(player.playerState === PlayerState.ALIVE){
+                return (<Sprite sprite={spazz} model={player}></Sprite>)
+              }
+            })}
+            {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.attacks && currentRoom.attacks.map((attack)=>
+              <Sprite sprite={burst} model={attack}></Sprite>
+            )}
           </div>
         </div>
       </div>
