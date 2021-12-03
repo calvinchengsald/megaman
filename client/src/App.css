@@ -45,3 +45,7 @@
   border-style: solid;
   border: rgb(230, 20, 202);
 }
+
+.sprite{
+  transform: translate(50%, 50%)
+}

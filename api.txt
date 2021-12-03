@@ -26,4 +26,5 @@ rooms {}
 TODO: 
 	only host can start game
 	high score - keep track of score
+	directions of attacks
 	

@@ -186,6 +186,9 @@ function App() {
             :
             <div>Game Started</div>
           }
+          <hr></hr>
+          <div>Score: {currentRoom.score? currentRoom.score:"N/A"}</div>
+          <div>High Score {currentRoom.highScore&&currentRoom.highScore!=0?"["+currentRoom.highScoreName+"] : "+currentRoom.highScore:"N/A"}</div>
         </div>
         <div className="game-box" 
           style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}
@@ -195,7 +198,7 @@ function App() {
           <div className="game-board" style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}>
             {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.players && currentRoom.players.map((player)=>{
               if(player.playerState === PlayerState.ALIVE){
-                return (<Sprite sprite={spazz} model={player}></Sprite>)
+                return (<Sprite sprite={spazz} name={player.displayName} model={player}></Sprite>)
               }
             })}
             {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.attacks && currentRoom.attacks.map((attack)=>

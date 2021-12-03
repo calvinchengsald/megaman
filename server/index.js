@@ -27,7 +27,10 @@ app.get('/', (req, res) => {
 const clients = {}
 const rooms = {}
 const games = {}
-
+const leaderboard = {
+    highScore: 0,
+    highScoreName: ""
+}
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -172,7 +175,7 @@ function handleCreateRoom(message){
     }
     
     //create a game object
-    const noEscape = new NoEscape(io, newRoom)
+    const noEscape = new NoEscape(io, newRoom, leaderboard)
     games[roomCode] = noEscape
 
     rooms[roomCode] = newRoom

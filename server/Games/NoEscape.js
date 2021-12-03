@@ -4,11 +4,14 @@ const Utility = require('../Utils/Utility');
 
 class NoEscape {
 
-    constructor(ioSocket, room){
+    constructor(ioSocket, room, leaderboard){
         console.log("initialized game No Escape")
         this.ioSocket = ioSocket
         this.room = room
         this.room.attacks = []
+        this.room.score = 0
+        this.leaderboard = leaderboard
+        this.setRoomHighScore()
         console.log(this.room)
 
         // counts up, when reachs 1 will spawn an attack
@@ -50,10 +53,13 @@ class NoEscape {
 
 
     update() {
+        this.room.score += GameBoardConstants.POINTS_PER_FRAME
+
         // check for collision before movement
         // loop through all players, if they have move matrix and alive then move them
         this.room.players.forEach(player => {
             if(player.playerState!==PlayerState.ALIVE) return
+            player.score = this.room.score
             if(this.checkCollision(player)){
                 console.log('player killed')
                 player.playerState=PlayerState.DEAD
@@ -179,6 +185,7 @@ class NoEscape {
 
     start(){
         console.log("start game")
+        this.setRoomHighScore()
         this.room.roomState=RoomState.IN_GAME
         //set all players to ALIVE and reset their positions
         this.room.players.forEach(player => {
@@ -187,14 +194,30 @@ class NoEscape {
             player.y = 0.5
         })
         this.room.attacks = []
+        this.room.score = 0
         this.gameLoop = setInterval(this.run(), 0, this);
     }
     end() {
         clearInterval(this.gameLoop)
+        //set the high score if applicable:
+        for(var i = 0; i<this.room.players.length; i++){
+            if(this.room.players[i].score && this.room.players[i].score > this.leaderboard.highScore){
+                this.leaderboard.highScore = this.room.players[i].score
+                this.leaderboard.highScoreName = this.room.players[i].displayName
+            }
+        }
+        this.setRoomHighScore()
+
         this.room.players.forEach(player => {
             player.playerState = PlayerState.READY
         })
         this.room.roomState=RoomState.IN_LOBBY
+    }
+
+    // set the room high score levels by copying whats in the Leaderboard
+    setRoomHighScore(){
+        this.room.highScore = this.leaderboard.highScore
+        this.room.highScoreName = this.leaderboard.highScoreName
     }
         
 }
