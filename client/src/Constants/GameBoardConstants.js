@@ -6,6 +6,11 @@ export const GameBoardConstants = {
     SPRITE_SIZE: 100
 }
 
+export const GameModes = {
+    NO_ESCAPE: "No Escape",
+    OTHER_GAME: "Other Game"
+}
+
 export const RoomState = {
     IN_GAME: "IN_GAME",
     IN_LOBBY: "IN_LOBBY"

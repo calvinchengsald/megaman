@@ -1,6 +1,7 @@
 
-const { GameBoardConstants, RoomState, PlayerState }  = require('../Constants/GameBoardConstants');
-const Utility = require('../Utils/Utility');
+const { GameModes, RoomState, PlayerState }  = require('../../Constants/GameBoardConstants');
+const { GameConstants } = require('./GameConstants')
+const Utility = require('../../Utils/Utility');
 
 class NoEscape {
 
@@ -20,7 +21,7 @@ class NoEscape {
 
 
     run(noEscapeGame){
-        var skipTicks = 1000 / GameBoardConstants.GAME_FPS;
+        var skipTicks = 1000 / GameConstants.GAME_FPS;
         var nextGameTick = (new Date).getTime();
 
         return function(noEscapeGame) {
@@ -31,29 +32,9 @@ class NoEscape {
               }
         }
     }
-    
-    // run(noEscapeGame){
-    //     this.targetDeltaUntilUpdate = 1000 / GameBoardConstants.GAME_FPS;
-    //     this.deltaUntilUpdate=this.targetDeltaUntilUpdate
-    //     this.lastUpdateTime=(new Date).getTime()
-
-    //     return function(noEscapeGame) {
-    //         const currentTime = (new Date).getTime()
-    //         var delta = currentTime-noEscapeGame.lastUpdateTime
-    //         noEscapeGame.deltaUntilUpdate-=delta;
-    //         if(noEscapeGame.deltaUntilUpdate<=0){
-    //             noEscapeGame.deltaUntilUpdate=noEscapeGame.targetDeltaUntilUpdate
-    //             noEscapeGame.update(delta);
-    //             noEscapeGame.ioSocket.to("room_"+noEscapeGame.room.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", noEscapeGame.room)));
-    //         } 
-    //         noEscapeGame.lastUpdateTime=currentTime
-    //     }
-    // }
-
-
 
     update() {
-        this.room.score += GameBoardConstants.POINTS_PER_FRAME
+        this.room.score += GameConstants.POINTS_PER_FRAME
 
         // check for collision before movement
         // loop through all players, if they have move matrix and alive then move them
@@ -66,19 +47,19 @@ class NoEscape {
                 return
             } 
             if(player.MOVE_UP){
-                player.y -= GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+                player.y -= GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
                 player.y = Math.max(player.y, 0.05)
             }
             if(player.MOVE_DOWN){
-                player.y += GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+                player.y += GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
                 player.y = Math.min(player.y, 0.95)
             }
             if(player.MOVE_LEFT){
-                player.x -= GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+                player.x -= GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
                 player.x = Math.max(player.x, 0.05)
             }
             if(player.MOVE_RIGHT){
-                player.x += GameBoardConstants.PLAYER_MOVE_SPEED_PER_FRAME
+                player.x += GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
                 player.x = Math.min(player.x, 0.95)
             }
         })
@@ -99,7 +80,7 @@ class NoEscape {
         })
 
         // createAttack
-        this.createAttackSpawn+=GameBoardConstants.ATTACK_SPAWN_PER_FRAME
+        this.createAttackSpawn+=GameConstants.ATTACK_SPAWN_PER_FRAME
         if(this.createAttackSpawn>1){
             this.createAttackSpawn-=1
             this.createAttack()
@@ -134,12 +115,12 @@ class NoEscape {
         return !(attack.x <= -0.05 || attack.x >= 1.05 || attack.y <= -0.05 || attack.y >= 1.05)
     }
 
-    // checek this players position against every attack, if within collision then return true
+    // check this players position against every attack, if within collision then return true
     checkCollision(player){
         const attacks = this.room.attacks
         for( var i = 0; i<attacks.length; i++){
-            if( Math.abs(attacks[i].x-player.x)<=GameBoardConstants.COLLISION_TOLERANCE &&
-                Math.abs(attacks[i].y-player.y)<=GameBoardConstants.COLLISION_TOLERANCE )
+            if( Math.abs(attacks[i].x-player.x)<=GameConstants.COLLISION_TOLERANCE &&
+                Math.abs(attacks[i].y-player.y)<=GameConstants.COLLISION_TOLERANCE )
             return true
         }
         return false;
@@ -153,7 +134,7 @@ class NoEscape {
         switch(moveDir){
             // move right
             case(0): 
-                attack.xSpeed = GameBoardConstants.ATTACK_MOVE_SPEED_PER_FRAME
+                attack.xSpeed = GameConstants.ATTACK_MOVE_SPEED_PER_FRAME
                 attack.ySpeed = 0
                 attack.x = 0
                 attack.y = spawnPoint
@@ -161,13 +142,13 @@ class NoEscape {
             // move down
             case(1): 
                 attack.xSpeed = 0
-                attack.ySpeed = GameBoardConstants.ATTACK_MOVE_SPEED_PER_FRAME
+                attack.ySpeed = GameConstants.ATTACK_MOVE_SPEED_PER_FRAME
                 attack.x = spawnPoint
                 attack.y = 0
                 break;
             // move left
             case(2): 
-                attack.xSpeed = -GameBoardConstants.ATTACK_MOVE_SPEED_PER_FRAME
+                attack.xSpeed = -GameConstants.ATTACK_MOVE_SPEED_PER_FRAME
                 attack.ySpeed = 0
                 attack.x = 1
                 attack.y = spawnPoint
@@ -175,7 +156,7 @@ class NoEscape {
             // move up
             case(3): 
                 attack.xSpeed = 0
-                attack.ySpeed = -GameBoardConstants.ATTACK_MOVE_SPEED_PER_FRAME
+                attack.ySpeed = -GameConstants.ATTACK_MOVE_SPEED_PER_FRAME
                 attack.x = spawnPoint
                 attack.y = 1
                 break;
@@ -197,7 +178,9 @@ class NoEscape {
         this.room.score = 0
         this.gameLoop = setInterval(this.run(), 0, this);
     }
+    
     end() {
+        console.log("ending game")
         clearInterval(this.gameLoop)
         //set the high score if applicable:
         for(var i = 0; i<this.room.players.length; i++){

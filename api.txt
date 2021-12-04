@@ -10,7 +10,7 @@ clients {}
 	}
 rooms {}
 	roomCode: room {
-		
+		gameType: The game mode for this room
 		roomCode : 5 letter
 		hostId: client id of the host
 		hostName: display name of host
@@ -24,7 +24,17 @@ rooms {}
 	}
 
 TODO: 
-	only host can start game
-	high score - keep track of score
 	directions of attacks
+	json per attack
+	different sprites per attack
+	diff sprite per avatar
 	
+COMPLETED
+	12/3
+	only host can start game
+	error message modal
+	seperate logic to index, room, and game 
+	
+	12/2
+	high score - keep track of score
+	name of player

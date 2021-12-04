@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import { Config } from './Constants/Config'
 import { ServerMessageActions } from './Constants/ServerMessageActions'
 import { ClientMessageActions } from './Constants/ClientMessageActions'
-import { GameBoardConstants, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions } from './Constants/GameBoardConstants'
+import { GameBoardConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions } from './Constants/GameBoardConstants'
 import Sprite from './Models/Sprite'
 import spazz from './resources/spazz.png';
 import burst from './resources/burst.png';
@@ -13,6 +14,8 @@ import { client } from 'websocket';
 function App() {
   var defaultSocket;
   const [socket, setSocket] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorShow, setErrorShow] = useState(false);
 
   const [playerMoveMatrix, setPlayerMoveMatrix] = useState({
     MOVE_UP: false,
@@ -27,7 +30,7 @@ function App() {
   
   const connectToServer = (e) => {
     e.preventDefault();
-    var newSocket = io(`http://localhost:8080`);
+    var newSocket = io(Config.SERVER_PATH);
     setSocket(newSocket)
     defaultSocket = newSocket;
     newSocket.on('message', messageListener);
@@ -55,6 +58,8 @@ function App() {
     console.log("message from " + "ERROR");
     const messageJson = JSON.parse(message)
     console.log("ERROR MESSAGE FROM SERVER: " + messageJson.message)
+    setErrorMessage(messageJson.message)
+    setErrorShow(true)
   };
 
   const messageListener = (message) => {
@@ -82,7 +87,7 @@ function App() {
     emitMsg(ClientMessageActions.PLAYER_INPUT, sendJson )
   }
   const createRoom = () => {
-    emitMsg(ClientMessageActions.CREATE_ROOM, basicJson("",""))
+    emitMsg(ClientMessageActions.CREATE_ROOM, basicJson("gameType",GameModes.NO_ESCAPE))
   }
   
   const basicJson = (field, value) => {
@@ -146,6 +151,13 @@ function App() {
     msg.clientId = clientId;
     socket.emit(path, JSON.stringify(msg));
   };
+
+  const handleAppClick = (e) => {
+    console.log("app click")
+    if(errorShow){
+      setErrorShow(false)
+    }
+  }
 
   // useEffect(() => {
   //   return () => socket?socket.close():console.log('no socket to close');
@@ -225,14 +237,19 @@ function App() {
         </div>
       </React.Fragment>
   }
-
   return (
-    <div className="App">
+    <div className="" onClick={handleAppClick}>
+      {errorShow?
+        <div className="error-modal">
+          <p>{errorMessage}</p>
+        </div>
+        :
+        <React.Fragment/>
+      }
       <header className="app-header">
         {displayName}
       </header>
       {viewFragment}
-
     </div>
   );
 }

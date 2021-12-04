@@ -1,3 +1,5 @@
+
+
 .app-header {
   padding: 10px;
   background-color: #282c34;
@@ -45,7 +47,15 @@
   border-style: solid;
   border: rgb(230, 20, 202);
 }
-
-.sprite{
-  transform: translate(50%, 50%)
+.error-modal{
+  z-index: 99;
+  position: absolute;
+  height: 100px;
+  width: 80%;
+  border: solid black 1px;
+  border-radius: 25px;
+  top: 5%;
+  text-align: center;
+  left: 10%;
+  background: #ffffe0 
 }

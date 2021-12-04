@@ -2,15 +2,16 @@
 const { v4: uuidv4 } = require('uuid');
 const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
-const { GameBoardConstants, RoomState, PlayerState, PlayerInputOptions }  = require('./Constants/GameBoardConstants');
-const { NoEscape: NoEscape }  = require('./Games/NoEscape');
-const  Utility   = require('./Utils/Utility');
+const { GameModes, RoomState, PlayerState, PlayerInputOptions }  = require('./Constants/GameBoardConstants');
+const { NoEscape: NoEscape }  = require('./Games/NoEscape/NoEscape');
+const { Room: Room }  = require('./Models/Room');
+const Utility   = require('./Utils/Utility');
 const express = require('express');
 const app = express();
 const http = require('http');
 const cors = require('cors');
 var socketio = require('socket.io');
-const { client } = require('websocket');
+const { Console } = require('console');
 const server = http.createServer(app);
 var io = socketio(server,{
     cors: {
@@ -61,86 +62,99 @@ io.on('connection', (socket) => {
     socket.send(JSON.stringify(payLoad))
 });
 
+function emitError(clientId, errorMessage){
+    clients[clientId].socket.emit(ServerMessageActions.ERROR, JSON.stringify(Utility.basicJson("message", errorMessage)))
+}
+
 function handlePlayerInput(message){
     const messageJson = JSON.parse(message)
-    messageJson.clientId
-
-    switch(messageJson.playerInputAction){
-        case PlayerInputOptions.MOVE:
-            // target room
-            var targetPlayer = Utility.getFromArray(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)
-            if(targetPlayer){
-                targetPlayer.MOVE_UP = messageJson.MOVE_UP
-                targetPlayer.MOVE_DOWN = messageJson.MOVE_DOWN
-                targetPlayer.MOVE_LEFT = messageJson.MOVE_LEFT
-                targetPlayer.MOVE_RIGHT = messageJson.MOVE_RIGHT
-            }
-            break;
-        case PlayerInputOptions.START_GAME:
-            console.log("Game Started")
-            // start the game
-            if(games[messageJson.roomCode]) games[messageJson.roomCode].start()
-            break;
-        default:
-            console.log("unrecognized action: " + messageJson.playerInputAction)
+    console.log(messageJson)
+    //offload the player input handling to each individual game's controller function
+    //but first validate that this player is part of this room
+    var targetRoom = rooms[messageJson.roomCode]
+    var targetGame = games[messageJson.roomCode]
+    var targetPlayer = Utility.getFromArray(targetRoom.roomJson.players, "clientId", messageJson.clientId)
+    if(!targetRoom){
+        emitError(messageJson.clientId, "This room does not exist")
+        return
     }
+    if(!targetGame){
+        emitError(messageJson.clientId, "This game does not exist")
+        return
+    }
+    if(!targetPlayer){
+        emitError(messageJson.clientId, "Player is not a part of this room")
+        return
+    }
+
+    if(targetRoom.handlePlayerInput(messageJson)){
+
+    }
+    else {
+        switch(messageJson.playerInputAction){
+            case PlayerInputOptions.START_GAME:
+                console.log("Game Started")
+                // start the game
+                if(targetRoom.roomJson.hostId !== messageJson.clientId){
+                    clients[messageJson.clientId].socket.emit(ServerMessageActions.ERROR, JSON.stringify(Utility.basicJson("message", "Only the host can start the game")))
+                    break;
+                }
+                if(games[messageJson.roomCode]) games[messageJson.roomCode].start()
+                break;
+            default:
+                console.log("unrecognized action: " + messageJson.playerInputAction)
+        }
+    }
+
+    
 
 }
 
 function handleDisconnect(clientId){
     console.log("disconnect")
-    console.log(clientId);
     //remove this player from the room he may be in
     if(clients[clientId].roomCode){
-        removePlayreFromRoom(clients[clientId].roomCode, clientId)
-        // rooms[roomCode].players = Utility.removeElementFromArrayByKey(rooms[roomCode].players, "clientId", clientId)
-        // // broadcast the updated room
-        // clients[clientId].socket.to("room_"+roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
+        removePlayerFromRoom(clients[clientId].roomCode, clientId)
     }
     //clean up this client
     delete clients[clientId]
-    console.log("all clients")
-    console.log(clients)
 }
 
 // handle events when a player leaves the room
 function handleLeaveRoom(message){
     const messageJson = JSON.parse(message)
-    const clientId = messageJson.clientId
-    removePlayreFromRoom(messageJson.roomCode, messageJson.clientId)
+    removePlayerFromRoom(messageJson.roomCode, messageJson.clientId)
 }
 
 // removing player with 'clientId' from room with 'roomCode'
 // cleanup the room is there are no other players
 // transfer host if host left
-function removePlayreFromRoom(roomCode, clientId){
+function removePlayerFromRoom(roomCode, clientId){
     // does this room exists?
-    if(!rooms[roomCode]) {
-        console.log("this room doesnt exist");
+    const targetRoom = rooms[roomCode]
+    if(!targetRoom) {
+        emitError(clientId, "This room does not exist")
         return;
     }
+    if(targetRoom.removePlayerFromRoom(clientId)){
+        //one final leave room event for this client as well as removing them from this room so they dont get future events from here
+        clients[clientId].socket.emit("ROOM_UPDATE_LEAVE", JSON.stringify(Utility.basicJson("room", rooms[roomCode].roomJson)))
+        clients[clientId].socket.leave("room_"+roomCode)
 
-    rooms[roomCode].players = Utility.removeElementFromArrayByKey(rooms[roomCode].players, "clientId", clientId)
-    //one final leave room event for this client as well as removing them from this room so they dont get future events from here
-    clients[clientId].socket.emit("ROOM_UPDATE_LEAVE", JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
-    clients[clientId].socket.leave("room_"+roomCode)
-    // are there any players left?
-    if(rooms[roomCode].players.length===0){
-        console.log("empty room, delete room")
-        delete rooms[roomCode]
-        games[roomCode].end()
-        if(games[roomCode]) delete games[roomCode]
-        // no need to broadcast this sunce no one else is in this room
-        return
+        // are there any players left?
+        if(targetRoom.roomJson.players.length===0){
+            console.log("empty room, delete room")
+            targetRoom.cleanupRoom()
+            delete rooms[roomCode]
+            if(games[roomCode]) delete games[roomCode]
+            // no need to broadcast this since no one else is in this room
+            return
+        }
+        io.to("room_"+roomCode).emit(ServerMessageActions.ROOM_UPDATE,JSON.stringify(Utility.basicJson("room", rooms[roomCode].roomJson)))
+    } 
+    else {
+        emitError(clientId, "This player is not part of this room")
     }
-    // if we just removed the host, lets pick the next player as host
-    if(rooms[roomCode].hostId===clientId){
-        rooms[roomCode].hostId=rooms[roomCode].players[0].clientId
-        rooms[roomCode].hostName=rooms[roomCode].players[0].displayName
-        console.log("host changed to " + rooms[roomCode].hostName)
-    }
-    //broadcast this room update to everyone
-    clients[clientId].socket.to("room_"+roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
 }
 
 
@@ -149,78 +163,73 @@ function handleDisplayName(message){
     clients[messageJson.clientId].displayName = messageJson.displayName;
     console.log(messageJson.displayName);
 }
+
 function handleCreateRoom(message){
     const messageJson = JSON.parse(message)
     let clientId = messageJson.clientId;
+    let gameType = messageJson.gameType;
+
+    // make sure this is one of the available game types for this room
+    if(!gameType || !Utility.existsInObject(GameModes, gameType)){
+        emitError(clientId, "Invalid game type")
+        return
+    }
     // keep trying to create a room code until you find one that doest exist
     let roomCode = Utility.generateRandomLetterString(5);
     while(rooms[roomCode]){
         roomCode = Utility.generateRandomLetterString(5);
     }
 
-
-    // create the room
-    const newRoom = {
+    // create the room with the basics
+    const roomJson = {
         roomCode: roomCode,
         hostId: clientId,
         hostName: clients[clientId].displayName,
         roomState: RoomState.IN_LOBBY,
         players: [{
             clientId: clientId,
-            displayName: clients[clientId].displayName,
-            x: 0.5,
-            y: 0.5,
-            playerState: PlayerState.READY
+            displayName: clients[clientId].displayName
         }],
     }
     
     //create a game object
-    const noEscape = new NoEscape(io, newRoom, leaderboard)
-    games[roomCode] = noEscape
-
-    rooms[roomCode] = newRoom
+    var gameObject
+    switch(gameType){
+        case GameModes.NO_ESCAPE: 
+            gameObject = new NoEscape(io, roomJson, leaderboard)
+            break;
+        case GameModes.OTHER_GAME: 
+            gameObject = new NoEscape(io, roomJson, leaderboard)
+            break;
+        default:
+            emitError(clientId, "This game type does not exist")
+            return;
+    }
+    games[roomCode] = gameObject
+    // rooms[roomCode] = newRoom
+    rooms[roomCode] = new Room(roomJson, gameObject, (clientId, errorMessage) => emitError(clientId, errorMessage)) 
     clients[clientId].roomCode = roomCode
     clients[clientId].socket.join("room_"+roomCode)
-    clients[clientId].socket.emit("ROOM_UPDATE", JSON.stringify(Utility.basicJson("room", rooms[roomCode])))
-    // clients[clientId].socket.on("room_"+roomCode).emit("ROOM_UPDATE", JSON.stringify(Utility.jsonWithMethod("room", rooms[message.roomCode], ServerMessageActions.JOIN_ROOM)))
-   
+    io.to("room_"+roomCode).emit(ServerMessageActions.ROOM_UPDATE,JSON.stringify(Utility.basicJson("room", rooms[roomCode].roomJson)))
 }
+
 function handleJoinRoom(message){
     const messageJson = JSON.parse(message)
     let clientId = messageJson.clientId;
+    const roomObject = rooms[messageJson.roomCode]
     //try to join the room
-    if(!rooms[messageJson.roomCode]) {
+    if(!roomObject) {
         console.log("this room doesnt exist");
-        clients[clientId].socket.emit(ServerMessageActions.ERROR, JSON.stringify(Utility.basicJson("message", "This room doesnt exists")))
+        emitError(clientId, "This room does not exist")
         return;
     }
-    if(Utility.existsInArray(rooms[messageJson.roomCode].players, "clientId", messageJson.clientId)){
-        console.log("cannot join a room you are already in");
-        clients[clientId].socket.emit("message", JSON.stringify(Utility.basicJson("message", "Cannot join a room you are already in")))
-        return;
+    var successfullJoinRoom = roomObject.handleJoinRoom(messageJson, clients)
+    if(successfullJoinRoom){
+        //keep track of the room on player side as well for easy reference when we want to remove the player from the room
+        clients[clientId].roomCode = messageJson.roomCode
+        clients[clientId].socket.join("room_"+messageJson.roomCode)
+        io.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode].roomJson)));
     }
-    const playerObj = {
-        clientId: messageJson.clientId,
-        displayName: clients[messageJson.clientId].displayName,
-        x: 0.5,
-        y: 0.5,
-        playerState: PlayerState.READY
-    }
-    //keep track of the room on player side as well for easy reference when we want to remove the player from the room
-    clients[messageJson.clientId].roomCode = messageJson.roomCode
-    console.log("successfully joined room");
-    rooms[messageJson.roomCode].players = [...rooms[messageJson.roomCode].players, playerObj]
-    // clients[clientId].socket.emit("message", JSON.stringify(Utility.jsonWithMethod("room", rooms[message.roomCode], ServerMessageActions.JOIN_ROOM)))
-        
-
-    clients[clientId].socket.join("room_"+messageJson.roomCode)
-    clients[clientId].socket.emit("ROOM_UPDATE", JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode])))
-    let sendJson =  JSON.stringify(Utility.basicJson("room", rooms[messageJson.roomCode]))
-    console.log("sending back on room: " + "room_"+messageJson.roomCode)
-    console.log(sendJson)
-    clients[clientId].socket.to("room_"+messageJson.roomCode).emit("ROOM_UPDATE",sendJson)
-    console.log(rooms[messageJson.roomCode].players)
-
 }
 
 
