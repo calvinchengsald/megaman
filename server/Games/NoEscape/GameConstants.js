@@ -81,13 +81,19 @@ const AttackConstants = {
         NAME: "Burst",
         MOVE_SPEED_PER_FRAME: .4 / GameConstants.GAME_FPS,
         ANIMATION_SPEED_PER_FRAME: 5 /GameConstants.GAME_FPS,
-        ANIMATION_MAX_FRAME: 5
+        ANIMATION_MAX_FRAME: 5,
+        SPECIAL_ATTRIBUTES: {
+            RETURN_COUNT: 3
+        }
     },
     Boomerang: {
         NAME: "Boomerang",
         MOVE_SPEED_PER_FRAME: .7 / GameConstants.GAME_FPS,
         ANIMATION_SPEED_PER_FRAME: 10 /GameConstants.GAME_FPS,
-        ANIMATION_MAX_FRAME: 5
+        ANIMATION_MAX_FRAME: 5,
+        SPECIAL_ATTRIBUTES: {
+            RETURN_COUNT: 1
+        }
     }
 }
 

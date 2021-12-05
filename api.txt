@@ -44,10 +44,13 @@ Notes:
 	default view for all images/sprites/attacks is heading up
 
 TODO: 
-	json spawn controller for attack spawn rate etc
 	clean up UI to seperate the different views into its own classes
 	
 COMPLETED
+	12/5
+	json spawn controller for attack spawn rate etc
+	
+	
 	12/4
 	different sprites per attack
 	diff sprite per avatar

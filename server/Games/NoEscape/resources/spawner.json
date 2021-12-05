@@ -1,10 +1,23 @@
 [
     {
-        "triggerTime": 1,
-        "subfield1": "field value 1"
+        "triggerTime": 0,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 10
     },
     {
-        "triggerTime": 2,
-        "subfield1": "field value 2"
+        "triggerTime": 13,
+        "attack": "Burst",
+        "spawnCount" : 2,
+        "spawnInterval" : 1,
+        "waveCount" : 10
+    },
+    {
+        "triggerTime": 23,
+        "attack": "Boomerang",
+        "spawnCount" : 2,
+        "spawnInterval" : 1,
+        "waveCount" : 10
     }
 ]

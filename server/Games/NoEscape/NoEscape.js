@@ -1,6 +1,7 @@
 
 const { GameModes, RoomState, PlayerState }  = require('../../Constants/GameBoardConstants');
 const { GameConstants, DirectionMatrix, AvatarConstants, AttackConstants } = require('./GameConstants')
+const { WaveSpawner } = require('./WaveSpawner')
 const Utility = require('../../Utils/Utility');
 const fs = require('fs');
 
@@ -21,9 +22,15 @@ class NoEscape {
         // counts up, when reachs 1 will spawn an attack
         this.createAttackSpawn = 0
 
-        // let rawdata = fs.readFileSync('Games/NoEscape/resources/spawner.json');
-        // let spawnerData = JSON.parse(rawdata);
-        // console.log(spawnerData)
+        //configure the wave spawners
+        const waveSpawnerFile = fs.readFileSync('Games/NoEscape/resources/spawner.json');
+        const spawnerData = JSON.parse(waveSpawnerFile);
+        this.waveSpawners = []
+        //create a wave spawner object for each spawn data in the file
+        for(var i = 0; i<spawnerData.length; i++){
+            const waveSpawner = new WaveSpawner((attack)=>this.createAttack(attack, this.room.attacks), spawnerData[i])
+            this.waveSpawners.push(waveSpawner)
+        }
     }
 
     // handle create game needed when creating this game.
@@ -94,11 +101,15 @@ class NoEscape {
         })
 
         // createAttack
-        this.createAttackSpawn+=GameConstants.ATTACK_SPAWN_PER_FRAME
-        if(this.createAttackSpawn>1){
-            this.createAttackSpawn-=1
-            this.createAttack( Math.floor(Math.random()*2)>=1?AttackConstants.Burst.NAME:AttackConstants.Boomerang.NAME)
-        }
+        // this.createAttackSpawn+=GameConstants.ATTACK_SPAWN_PER_FRAME
+        // if(this.createAttackSpawn>1){
+        //     this.createAttackSpawn-=1
+        //     this.createAttack( Math.floor(Math.random()*2)>=1?AttackConstants.Burst.NAME:AttackConstants.Boomerang.NAME)
+        // }
+
+        this.waveSpawners.map((waveSpawner)=>{
+            waveSpawner.update(GameConstants.TIME_PER_FRAME)
+        })
 
         //check for game over
         this.gameOver()
@@ -189,6 +200,30 @@ class NoEscape {
 
     // returns if this attack is still within the board and should be removed
     attackInBounds(attack){
+        //for attacks that can rebound, reverse their direction if they are out of bounds
+        if(attack.SPECIAL_ATTRIBUTES.RETURN_COUNT && attack.SPECIAL_ATTRIBUTES.RETURN_COUNT>0){
+            if(attack.x <= -0.03 || attack.x >= 1.03 || attack.y <= -0.03 || attack.y >= 1.03){
+                switch(attack.moveDirection){
+                    case(DirectionMatrix.RIGHT): 
+                        attack.moveDirection = DirectionMatrix.LEFT;
+                        attack.x = 1
+                        break;
+                    case(DirectionMatrix.LEFT): 
+                        attack.moveDirection = DirectionMatrix.RIGHT;
+                        attack.x = 0
+                        break;
+                    case(DirectionMatrix.UP): 
+                        attack.moveDirection = DirectionMatrix.DOWN;
+                        attack.y = 0
+                        break;
+                    case(DirectionMatrix.DOWN): 
+                        attack.moveDirection = DirectionMatrix.UP;
+                        attack.y = 1
+                        break;
+                }
+                attack.SPECIAL_ATTRIBUTES.RETURN_COUNT--;
+            }
+        }
         return !(attack.x <= -0.03 || attack.x >= 1.03 || attack.y <= -0.03 || attack.y >= 1.03)
     }
 
@@ -203,7 +238,7 @@ class NoEscape {
         return false;
     }
 
-    createAttack(attackName) {
+    createAttack(attackName, attacks) {
         // is this a valid avatar type?
         const attackConstant = AttackConstants[attackName]
         if(!attackConstant){
@@ -216,8 +251,10 @@ class NoEscape {
         const attack = {
             type: attackName,
             animationFrame: 0,
-            animationTimer: 1
+            animationTimer: 1,
+            SPECIAL_ATTRIBUTES: {}
         }
+        Object.assign(attack.SPECIAL_ATTRIBUTES,attackConstant.SPECIAL_ATTRIBUTES)
         switch(moveDir){
             // move right
             case(DirectionMatrix.RIGHT): 
@@ -244,7 +281,7 @@ class NoEscape {
                 attack.y = 1
                 break;
         }
-        this.room.attacks.push(attack)
+        attacks.push(attack)
     }
 
     start(){
@@ -262,6 +299,9 @@ class NoEscape {
         this.room.attacks = []
         this.room.score = 0
         this.room.timer = 0
+        this.waveSpawners.map((waveSpawner)=>{
+            waveSpawner.initialize()
+        })
         this.gameLoop = setInterval(this.run(), 0, this);
     }
 

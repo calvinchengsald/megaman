@@ -68,7 +68,6 @@ function emitError(clientId, errorMessage){
 
 function handlePlayerInput(message){
     const messageJson = JSON.parse(message)
-    console.log(messageJson)
     //offload the player input handling to each individual game's controller function
     //but first validate that this player is part of this room
     var targetRoom = rooms[messageJson.roomCode]
@@ -243,9 +242,9 @@ function handleJoinRoom(message){
     }
 }
 
-
-server.listen(8080, () => {
-  console.log('listening on *:8080');
+const port = process.env.port || 8080
+server.listen(port, () => {
+  console.log('listening on *:' + port);
 });
 
 
