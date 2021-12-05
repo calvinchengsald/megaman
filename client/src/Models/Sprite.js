@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { GameBoardConstants } from '../Constants/GameBoardConstants'
-
-
+import { AvatarConstants, AttackConstants, DirectionMatrix } from '../Games/NoEscape/GameConstants'
 class Sprite extends React.Component {
 
 
@@ -15,6 +14,19 @@ class Sprite extends React.Component {
         top:  (this.props.model.y*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px' ,
         left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px'
       }
+      if(this.props.model.moveDirection){
+          switch(this.props.model.moveDirection){
+              case(DirectionMatrix.RIGHT):
+                spriteStyle.transform = 'rotate(90deg)'
+                break
+              case(DirectionMatrix.DOWN):
+                spriteStyle.transform = 'rotate(180deg)'
+                break
+              case(DirectionMatrix.LEFT):
+                spriteStyle.transform = 'rotate(270deg)'
+                break
+          }
+      }
       const nameStyle = {
         position: 'absolute',
         width: GameBoardConstants.SPRITE_SIZE+'px',
@@ -22,14 +34,19 @@ class Sprite extends React.Component {
         left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))   +'px',
         'text-align': 'center'
       }
+      const imageDiv = 
+        this.props.type==="avatar"?
+        <img src={AvatarConstants[this.props.model.type][this.props.model.state][this.props.model.animationFrame]} className="sprite" style={spriteStyle} />
+        :
+        <img src={AttackConstants[this.props.model.type].DEFAULT[this.props.model.animationFrame]} className="sprite" style={spriteStyle} />
     return (
         <React.Fragment>
-            {this.props.name?
-            <div style={nameStyle}>{this.props.name}</div>
+            {this.props.model.displayName?
+            <div style={nameStyle}>{this.props.model.displayName}</div>
             :
             <React.Fragment/>
             }
-            <img src={this.props.sprite} className="sprite" style={spriteStyle} />
+            {imageDiv}
         </React.Fragment>
     );
   }

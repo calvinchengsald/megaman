@@ -13,6 +13,10 @@ const PlayerState = {
     ALIVE: "ALIVE",
 }
 
+const PlayerDetailOptions = {
+    DISPLAY_NAME: "DISPLAY_NAME",
+    AVATAR: "AVATAR"
+}
 const PlayerInputOptions = {
     MOVE: "MOVE",
     START_GAME: "START_GAME"
@@ -27,5 +31,6 @@ module.exports = {
     RoomState: RoomState,
     PlayerState: PlayerState,
     PlayerInputOptions: PlayerInputOptions,
+    PlayerDetailOptions: PlayerDetailOptions,
     GameModes: GameModes
 }

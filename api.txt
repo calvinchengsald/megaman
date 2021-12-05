@@ -18,18 +18,47 @@ rooms {}
 		players: []
 			clientId: client id of this player
 			displayName: display name of this player
+			type: the type of avatar this is
 			x: xCoordinate
 			y: yCoordinate
-			playerState: READY / DEAD / ALIVE
+			state: READY / DEAD / ALIVE / DYING
+			animationFrame: the current animation frame
+			animationTimer: countdown timer until animation frame is incrememted
+		attacks: []
+			type: the type of attack this is
+			x: xCoordinate
+			y: yCoordinate
+			moveDirection: direction of movement
+			animationFrame: the current animation frame
+			animationTimer: countdown timer until animation frame is incrememted
+			
 	}
+	
+	
+sockets:
+	PLAYER_DETAIL: 
+		playerDetailAction
+	
+	
+Notes:
+	default view for all images/sprites/attacks is heading up
 
 TODO: 
-	directions of attacks
-	json per attack
-	different sprites per attack
-	diff sprite per avatar
+	json spawn controller for attack spawn rate etc
+	clean up UI to seperate the different views into its own classes
 	
 COMPLETED
+	12/4
+	different sprites per attack
+	diff sprite per avatar
+	organize attack movement speed on attack json
+	directions of attacks
+	json per attack
+	switchng avatar on menu screen
+	animation for avatar and their states
+	animation for attacks
+	
+
 	12/3
 	only host can start game
 	error message modal

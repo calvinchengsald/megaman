@@ -3,10 +3,9 @@ import io from 'socket.io-client';
 import { Config } from './Constants/Config'
 import { ServerMessageActions } from './Constants/ServerMessageActions'
 import { ClientMessageActions } from './Constants/ClientMessageActions'
-import { GameBoardConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions } from './Constants/GameBoardConstants'
+import { AvatarConstants } from './Games/NoEscape/GameConstants'
+import { GameBoardConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions } from './Constants/GameBoardConstants'
 import Sprite from './Models/Sprite'
-import spazz from './resources/spazz.png';
-import burst from './resources/burst.png';
 
 import './App.css';
 import { client } from 'websocket';
@@ -25,7 +24,8 @@ function App() {
   });
   const [joinRoomCode, setJoinRoomCode] = useState('');
   const [currentRoom, setCurrentRoom] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState('Cowvin');
+  const [avatar, setAvatar] = useState(AvatarConstants.Beholder.NAME);
   const [clientId, setClientId] = useState('');
   
   const connectToServer = (e) => {
@@ -44,7 +44,7 @@ function App() {
     // console.log("message from " + "ROOM_UPDATE");
     // console.log("recieved raw message with: " + message);
     const messageJson = JSON.parse(message)
-    // console.log("recieved message with: " + messageJson);
+    // console.log(messageJson.room.attacks);
     setCurrentRoom(messageJson.room)
   };
   
@@ -70,7 +70,11 @@ function App() {
     switch(messageJson.method){
       case ServerMessageActions.CONNECT: 
         setClientId(messageJson.clientId);
-        eventSocket.emit(ClientMessageActions.DISPLAY_NAME, JSON.stringify(basicJsonWithClientId("displayName", displayName, messageJson.clientId)));
+        const sendJson = basicJsonWithClientId("displayName", displayName, messageJson.clientId)
+        sendJson.playerDetailAction = PlayerDetailOptions.DISPLAY_NAME
+        // console.log("about to send joso")
+        // console.log(sendJson)
+        eventSocket.emit(ClientMessageActions.PLAYER_DETAIL, JSON.stringify(sendJson));
         break;
     }
   };
@@ -88,6 +92,13 @@ function App() {
   }
   const createRoom = () => {
     emitMsg(ClientMessageActions.CREATE_ROOM, basicJson("gameType",GameModes.NO_ESCAPE))
+  }
+  const selectAvatar = (targetAvatar) => {
+    console.log("select avatar")
+    setAvatar(targetAvatar)
+    const sendJson = basicJson("playerDetailAction",PlayerDetailOptions.AVATAR)
+    sendJson.avatar=targetAvatar
+    emitMsg(ClientMessageActions.PLAYER_DETAIL,sendJson)
   }
   
   const basicJson = (field, value) => {
@@ -172,7 +183,6 @@ function App() {
         <form onSubmit={connectToServer}>
           <input
             autoFocus value={displayName} placeholder="Display Name"
-            value="Cowvin"
             onChange={(e) => {
               setDisplayName(e.currentTarget.value);
             }}
@@ -209,12 +219,12 @@ function App() {
         >
           <div className="game-board" style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}>
             {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.players && currentRoom.players.map((player)=>{
-              if(player.playerState === PlayerState.ALIVE){
-                return (<Sprite sprite={spazz} name={player.displayName} model={player}></Sprite>)
+              if(player.state === PlayerState.ALIVE || player.state === PlayerState.DYING){
+                return (<Sprite type="avatar" name={player.displayName} model={player}></Sprite>)
               }
             })}
             {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.attacks && currentRoom.attacks.map((attack)=>
-              <Sprite sprite={burst} model={attack}></Sprite>
+              <Sprite type="attack" model={attack}></Sprite>
             )}
           </div>
         </div>
@@ -234,6 +244,10 @@ function App() {
             />
           </form>
           <button onClick={createRoom}>Create Room</button>
+          <div>Select an avatar</div>
+          { Object.keys(AvatarConstants).map(key=>
+            <img onClick={()=>selectAvatar(AvatarConstants[key].NAME)} src={AvatarConstants[key].DYING[0]} className={avatar===AvatarConstants[key].NAME?"avatar-selector avatar-selected":"avatar-selector"}/>
+          )}
         </div>
       </React.Fragment>
   }

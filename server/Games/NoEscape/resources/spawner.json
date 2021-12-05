@@ -1,0 +1,10 @@
+[
+    {
+        "triggerTime": 1,
+        "subfield1": "field value 1"
+    },
+    {
+        "triggerTime": 2,
+        "subfield1": "field value 2"
+    }
+]

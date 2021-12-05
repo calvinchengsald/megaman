@@ -3,7 +3,7 @@
 export const GameBoardConstants = {
     GAME_BOARD_SIZE: 800,
     GAME_BOARD_PLAYABLE_SIZE: 800,
-    SPRITE_SIZE: 100
+    SPRITE_SIZE: 80
 }
 
 export const GameModes = {
@@ -20,6 +20,7 @@ export const PlayerState = {
     READY: "READY",
     DEAD: "DEAD",
     ALIVE: "ALIVE",
+    DYING: "DYING"
 }
 
 
@@ -33,4 +34,9 @@ export const PlayerMoveOptions = {
 export const PlayerInputOptions = {
     MOVE: "MOVE",
     START_GAME: "START_GAME"
+}
+
+export const PlayerDetailOptions = {
+    DISPLAY_NAME: "DISPLAY_NAME",
+    AVATAR: "AVATAR"
 }

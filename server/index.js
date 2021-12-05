@@ -2,7 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
-const { GameModes, RoomState, PlayerState, PlayerInputOptions }  = require('./Constants/GameBoardConstants');
+const { GameModes, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions }  = require('./Constants/GameBoardConstants');
 const { NoEscape: NoEscape }  = require('./Games/NoEscape/NoEscape');
 const { Room: Room }  = require('./Models/Room');
 const Utility   = require('./Utils/Utility');
@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     console.log('a user connected');
     
     socket.on('getMessages', () => console.log('getMessages'));
-    socket.on(ClientMessageActions.DISPLAY_NAME, (value) => handleDisplayName(value));
+    socket.on(ClientMessageActions.PLAYER_DETAIL, (value) => handlePlayerDetail(value));
     socket.on(ClientMessageActions.CREATE_ROOM, (value) => handleCreateRoom(value));
     socket.on(ClientMessageActions.JOIN_ROOM, (value) => handleJoinRoom(value));
     socket.on(ClientMessageActions.LEAVE_ROOM, (value) => handleLeaveRoom(value));
@@ -158,10 +158,21 @@ function removePlayerFromRoom(roomCode, clientId){
 }
 
 
-function handleDisplayName(message){
+function handlePlayerDetail(message){
     const messageJson = JSON.parse(message)
-    clients[messageJson.clientId].displayName = messageJson.displayName;
-    console.log(messageJson.displayName);
+    console.log(messageJson)
+    switch(messageJson.playerDetailAction){
+        case PlayerDetailOptions.DISPLAY_NAME:
+            clients[messageJson.clientId].displayName = messageJson.displayName;
+            console.log(messageJson.displayName);
+            break;
+        case PlayerDetailOptions.AVATAR:
+            clients[messageJson.clientId].type = messageJson.avatar;
+            console.log(messageJson.avatar);
+            break;
+        default:
+            console.log("unrecognized action: " + messageJson.PlayerDetailOptions)
+    }
 }
 
 function handleCreateRoom(message){
@@ -207,7 +218,7 @@ function handleCreateRoom(message){
     }
     games[roomCode] = gameObject
     // rooms[roomCode] = newRoom
-    rooms[roomCode] = new Room(roomJson, gameObject, (clientId, errorMessage) => emitError(clientId, errorMessage)) 
+    rooms[roomCode] = new Room(roomJson, gameObject, (clientId, errorMessage) => emitError(clientId, errorMessage), clients[clientId]) 
     clients[clientId].roomCode = roomCode
     clients[clientId].socket.join("room_"+roomCode)
     io.to("room_"+roomCode).emit(ServerMessageActions.ROOM_UPDATE,JSON.stringify(Utility.basicJson("room", rooms[roomCode].roomJson)))

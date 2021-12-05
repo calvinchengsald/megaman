@@ -3,16 +3,13 @@ const { GameModes, RoomState, PlayerState, PlayerInputOptions }  = require('../C
 const Utility = require('../Utils/Utility');
 class Room {
 
-    constructor(roomJson, gameObject, emitError){
+    constructor(roomJson, gameObject, emitError, hostObject){
         this.gameObject = gameObject
         this.emitError = emitError
         this.roomJson = roomJson
-        this.roomJson.players[0] = {
-            ...this.roomJson.players[0],
-            x: 0.5,
-            y: 0.5,
-            playerState: PlayerState.READY
-        }
+        this.roomJson.players[0].state = PlayerState.READY
+        this.roomJson.players[0].type = hostObject.type
+        this.gameObject.handleCreateGame(this.roomJson.players[0])
     }
 
 
@@ -25,10 +22,10 @@ class Room {
         const playerObj = {
             clientId: messageJson.clientId,
             displayName: clients[messageJson.clientId].displayName,
-            x: 0.5,
-            y: 0.5,
-            playerState: PlayerState.READY
+            state: PlayerState.READY,
+            type: clients[messageJson.clientId].type
         }
+        this.gameObject.handleJoinRoom(playerObj)
         this.roomJson.players.push(playerObj)
         return true
     }

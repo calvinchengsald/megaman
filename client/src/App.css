@@ -59,3 +59,14 @@
   left: 10%;
   background: #ffffe0 
 }
+
+.avatar-selector{
+  width: 200px;
+  height: 200px;
+  border-radius: 25px;
+  background: rgb(227, 241, 241);
+}
+.avatar-selected{
+  border: solid yellow 2px;
+  background: lightgreen;
+}
