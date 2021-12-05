@@ -83,7 +83,6 @@ const AttackConstants = {
         ANIMATION_SPEED_PER_FRAME: 5 /GameConstants.GAME_FPS,
         ANIMATION_MAX_FRAME: 5,
         SPECIAL_ATTRIBUTES: {
-            RETURN_COUNT: 3
         }
     },
     Boomerang: {

@@ -1,23 +1,86 @@
 [
     {
-        "triggerTime": 0,
+        "triggerTime": 1,
         "attack": "Burst",
         "spawnCount" : 1,
         "spawnInterval" : 1,
         "waveCount" : 10
     },
     {
-        "triggerTime": 13,
+        "triggerTime": 11,
         "attack": "Burst",
         "spawnCount" : 2,
         "spawnInterval" : 1,
         "waveCount" : 10
     },
     {
+        "triggerTime": 21,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 0.4,
+        "waveCount" : 10
+    },
+    {
         "triggerTime": 23,
         "attack": "Boomerang",
-        "spawnCount" : 2,
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 2
+    },
+    {
+        "triggerTime": 30,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 0.2,
+        "waveCount" : 10
+    },
+    {
+        "triggerTime": 35,
+        "attack": "Boomerang",
+        "spawnCount" : 1,
         "spawnInterval" : 1,
         "waveCount" : 10
+    },
+    {
+        "triggerTime": 42,
+        "attack": "Boomerang",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 999
+    },
+    {
+        "triggerTime": 42,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 999
+    },
+    {
+        "triggerTime": 52,
+        "attack": "Boomerang",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 999
+    },
+    {
+        "triggerTime": 52,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 999
+    },
+    {
+        "triggerTime": 62,
+        "attack": "Boomerang",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 999
+    },
+    {
+        "triggerTime": 62,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 999
     }
 ]

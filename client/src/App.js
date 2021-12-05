@@ -24,8 +24,8 @@ function App() {
   });
   const [joinRoomCode, setJoinRoomCode] = useState('');
   const [currentRoom, setCurrentRoom] = useState('');
-  const [displayName, setDisplayName] = useState('Cowvin');
-  const [avatar, setAvatar] = useState(AvatarConstants.Beholder.NAME);
+  const [displayName, setDisplayName] = useState('');
+  const [avatar, setAvatar] = useState(AvatarConstants.Spazz.NAME);
   const [clientId, setClientId] = useState('');
   
   const connectToServer = (e) => {
