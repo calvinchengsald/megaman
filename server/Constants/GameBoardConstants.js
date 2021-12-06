@@ -24,7 +24,8 @@ const PlayerInputOptions = {
 
 const GameModes = {
     NO_ESCAPE: "No Escape",
-    OTHER_GAME: "Other Game"
+    OTHER_GAME: "Other Game",
+    TEAM_FIGHT: "Team Fight"
 }
 
 module.exports = {

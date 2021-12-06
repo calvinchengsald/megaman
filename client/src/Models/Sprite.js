@@ -1,10 +1,8 @@
 import React, { Component } from "react";
-import { GameBoardConstants } from '../Constants/GameBoardConstants'
-import { AvatarConstants, AttackConstants, DirectionMatrix } from '../Games/NoEscape/GameConstants'
+import { AvatarConstants, AttackConstants } from '../Constants/GlobalGameConstants'
+import { GameBoardConstants, DirectionMatrix } from '../Games/NoEscape/GameConstants'
+import './Sprite.css';
 class Sprite extends React.Component {
-
-
-
 
   render() {
       const spriteStyle = {
@@ -12,7 +10,8 @@ class Sprite extends React.Component {
         width: GameBoardConstants.SPRITE_SIZE+'px',
         height: GameBoardConstants.SPRITE_SIZE+'px',
         top:  (this.props.model.y*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px' ,
-        left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px'
+        left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px',
+        zIndex: this.props.mainPlayer?98:1
       }
       if(this.props.model.moveDirection){
           switch(this.props.model.moveDirection){
@@ -36,7 +35,7 @@ class Sprite extends React.Component {
       }
       const imageDiv = 
         this.props.type==="avatar"?
-        <img src={AvatarConstants[this.props.model.type][this.props.model.state][this.props.model.animationFrame]} className="sprite" style={spriteStyle} />
+        <img src={AvatarConstants[this.props.model.type][this.props.model.state][this.props.model.animationFrame]} className='sprite' style={spriteStyle} />
         :
         <img src={AttackConstants[this.props.model.type].DEFAULT[this.props.model.animationFrame]} className="sprite" style={spriteStyle} />
     return (

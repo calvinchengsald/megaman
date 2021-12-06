@@ -1,4 +1,15 @@
 
+connect to ssh
+ ssh -i "/e/development/AWS/KeyPairs/SaldGamesEc2.pem" ec2-user@ec2-184-73-39-20.compute-1.amazonaws.com
+
+TO LOOK AT NOHUP JOBS
+jobs -l
+kill -9 PID
+
+server 
+alias serverstart='cd ~/megaman/server && nohup npm start > ~/server.log &'
+alias clientstart='cd ~/megaman/client && nohup npm start > ~/client.log &'
+alias update='cd ~/megaman && git pull'
 
 ROOM OBJECT
 
@@ -32,6 +43,7 @@ rooms {}
 			animationFrame: the current animation frame
 			animationTimer: countdown timer until animation frame is incrememted
 			
+			
 	}
 	
 	
@@ -44,12 +56,18 @@ Notes:
 	default view for all images/sprites/attacks is heading up
 
 TODO: 
-	clean up UI to seperate the different views into its own classes
+	seperate the animation to its own constant instead of game dependant
+	team fight game
 	
 COMPLETED
 	12/5
 	json spawn controller for attack spawn rate etc
+	clean up UI to seperate the different views into its own classes
+	init new game mode: TeamFight
 	
+	
+	player priority when drawing avatar
+	attacks now die when colliding with player
 	
 	12/4
 	different sprites per attack

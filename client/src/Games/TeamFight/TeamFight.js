@@ -4,14 +4,14 @@ import { RoomState, PlayerState } from '../../Constants/GlobalGameConstants'
 import { GameBoardConstants } from './GameConstants'
 import Sprite from '../../Models/Sprite'
 
-class NoEscape extends React.Component {
+class TeamFight extends React.Component {
 
     render() {
         return(
             <div className="game-box" 
-            style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}
+            style={{minWidth: GameBoardConstants.GAME_BOARD_WIDTH+'px', minHeight: GameBoardConstants.GAME_BOARD_HEIGHT+'px'}}
             >
-                <div className="game-board" style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}>
+                <div className="game-board" style={{minWidth: GameBoardConstants.GAME_BOARD_WIDTH+'px', minHeight: GameBoardConstants.GAME_BOARD_HEIGHT+'px'}}>
                     {this.props.currentRoom && this.props.currentRoom.roomState===RoomState.IN_GAME && this.props.currentRoom.players && this.props.currentRoom.players.map((player)=>{
                     if(player.state === PlayerState.ALIVE || player.state === PlayerState.DYING){
                         return (<Sprite mainPlayer={this.props.clientId===player.clientId?true:false} type="avatar" name={player.displayName} model={player}></Sprite>)
@@ -27,4 +27,4 @@ class NoEscape extends React.Component {
 }
 
 
-export default NoEscape;
+export default TeamFight;

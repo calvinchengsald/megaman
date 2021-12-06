@@ -26,7 +26,7 @@
   border: #282c34;
   border-width: medium;
   border-style: solid;
-  min-width: 250px;
+  min-width: 200px;
 }
 .game-box {
   border: #282c34;
@@ -69,4 +69,19 @@
 .avatar-selected{
   border: solid yellow 2px;
   background: lightgreen;
+}
+
+.game-mode-body{
+  display: flex;
+  flex-direction: row;
+}
+.game-mode-selector{
+  width: 200px;
+  height: 100px;
+  border-radius: 25px;
+  background: rgb(227, 241, 241);
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

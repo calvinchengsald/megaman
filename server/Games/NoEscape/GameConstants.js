@@ -73,6 +73,17 @@ const AvatarConstants = {
             ANIMATION_SPEED_PER_FRAME: 8 /GameConstants.GAME_FPS,
             ANIMATION_MAX_FRAME: 5
         }
+    },
+    Teemo: {
+        NAME: "Teemo",
+        ALIVE: {
+            ANIMATION_SPEED_PER_FRAME: 5 /GameConstants.GAME_FPS,
+            ANIMATION_MAX_FRAME: 1
+        },
+        DYING: {
+            ANIMATION_SPEED_PER_FRAME: 8 /GameConstants.GAME_FPS,
+            ANIMATION_MAX_FRAME: 1
+        }
     }
 }
 

@@ -4,6 +4,7 @@ const { ClientMessageActions: ClientMessageActions }  = require('./Constants/Cli
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
 const { GameModes, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions }  = require('./Constants/GameBoardConstants');
 const { NoEscape: NoEscape }  = require('./Games/NoEscape/NoEscape');
+const { TeamFight: TeamFight }  = require('./Games/TeamFight/TeamFight');
 const { Room: Room }  = require('./Models/Room');
 const Utility   = require('./Utils/Utility');
 const express = require('express');
@@ -196,6 +197,7 @@ function handleCreateRoom(message){
         hostId: clientId,
         hostName: clients[clientId].displayName,
         roomState: RoomState.IN_LOBBY,
+        gameType: gameType,
         players: [{
             clientId: clientId,
             displayName: clients[clientId].displayName
@@ -208,8 +210,8 @@ function handleCreateRoom(message){
         case GameModes.NO_ESCAPE: 
             gameObject = new NoEscape(io, roomJson, leaderboard)
             break;
-        case GameModes.OTHER_GAME: 
-            gameObject = new NoEscape(io, roomJson, leaderboard)
+        case GameModes.TEAM_FIGHT: 
+            gameObject = new TeamFight(io, roomJson, leaderboard)
             break;
         default:
             emitError(clientId, "This game type does not exist")

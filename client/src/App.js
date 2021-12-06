@@ -3,9 +3,9 @@ import io from 'socket.io-client';
 import { Config } from './Constants/Config'
 import { ServerMessageActions } from './Constants/ServerMessageActions'
 import { ClientMessageActions } from './Constants/ClientMessageActions'
-import { AvatarConstants } from './Games/NoEscape/GameConstants'
-import { GameBoardConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions } from './Constants/GameBoardConstants'
+import { AvatarConstants, AttackConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions } from './Constants/GlobalGameConstants'
 import Sprite from './Models/Sprite'
+import Room from './Models/Room'
 
 import './App.css';
 import { client } from 'websocket';
@@ -15,6 +15,7 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorShow, setErrorShow] = useState(false);
+  const [gameMode, setGameMode] = useState(GameModes.NO_ESCAPE);
 
   const [playerMoveMatrix, setPlayerMoveMatrix] = useState({
     MOVE_UP: false,
@@ -24,7 +25,7 @@ function App() {
   });
   const [joinRoomCode, setJoinRoomCode] = useState('');
   const [currentRoom, setCurrentRoom] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState('Cowvin');
   const [avatar, setAvatar] = useState(AvatarConstants.Spazz.NAME);
   const [clientId, setClientId] = useState('');
   
@@ -82,16 +83,8 @@ function App() {
     e.preventDefault();
     emitMsg(ClientMessageActions.JOIN_ROOM, basicJson("roomCode",joinRoomCode))
   }
-  const leaveRoom = (e) => {
-    emitMsg(ClientMessageActions.LEAVE_ROOM, basicJson("roomCode",currentRoom.roomCode))
-  }
-  const startGame = (e) => {
-    const sendJson = basicJson("roomCode",currentRoom.roomCode)
-    sendJson.playerInputAction = PlayerInputOptions.START_GAME
-    emitMsg(ClientMessageActions.PLAYER_INPUT, sendJson )
-  }
   const createRoom = () => {
-    emitMsg(ClientMessageActions.CREATE_ROOM, basicJson("gameType",GameModes.NO_ESCAPE))
+    emitMsg(ClientMessageActions.CREATE_ROOM, basicJson("gameType",gameMode))
   }
   const selectAvatar = (targetAvatar) => {
     console.log("select avatar")
@@ -119,6 +112,7 @@ function App() {
   // key - key pressed by player
   // toggle - set movement mode to true/false
   const changePlayerMovementMatrix = (key, toggle) => {
+    if(!playerMoveMatrix || !currentRoom) return
     const copyPlayerMoveMatrix = playerMoveMatrix;
     switch(key){
       case 'ArrowRight': 
@@ -191,44 +185,8 @@ function App() {
       </div>
   } else if (currentRoom){
     currentView = "ROOM"
-    viewFragment =
-      <div className="flex-container">
-        <div className="info-box">
-          <div>Game Room</div>
-          <div>Host: {currentRoom.hostName}</div>
-          <div>Room Code: {currentRoom.roomCode}</div>
-          <hr/>
-          <div>Players</div>
-          {currentRoom.players.map((player)=>(
-            <div key={"player_list"+player.clientId}>{player.displayName}</div>
-          ))}
-          <button onClick={leaveRoom}>Leave Room</button>
-          { currentRoom.roomState===RoomState.IN_LOBBY?
-            <button onClick={startGame}>Start Game</button>
-            :
-            <div>Game Started</div>
-          }
-          <hr></hr>
-          <div>Score: {currentRoom.score? currentRoom.score:"N/A"}</div>
-          <div>High Score {currentRoom.highScore&&currentRoom.highScore!=0?"["+currentRoom.highScoreName+"] : "+currentRoom.highScore:"N/A"}</div>
-        </div>
-        <div className="game-box" 
-          style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}
-          onKeyDown={handlePlayerKeyPress}
-          onKeyUp={handlePlayerKeyRelease} tabIndex="0"
-        >
-          <div className="game-board" style={{minWidth: GameBoardConstants.GAME_BOARD_SIZE+'px', minHeight: GameBoardConstants.GAME_BOARD_SIZE+'px'}}>
-            {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.players && currentRoom.players.map((player)=>{
-              if(player.state === PlayerState.ALIVE || player.state === PlayerState.DYING){
-                return (<Sprite type="avatar" name={player.displayName} model={player}></Sprite>)
-              }
-            })}
-            {currentRoom && currentRoom.roomState===RoomState.IN_GAME && currentRoom.attacks && currentRoom.attacks.map((attack)=>
-              <Sprite type="attack" model={attack}></Sprite>
-            )}
-          </div>
-        </div>
-      </div>
+    viewFragment = <Room currentRoom={currentRoom} clientId={clientId} emitMsg={(path, msg)=>emitMsg(path, msg)}></Room>
+      
   } else {
     currentView = "MENU"
     viewFragment =
@@ -242,17 +200,26 @@ function App() {
                   setJoinRoomCode(e.currentTarget.value);
                 }}
             />
+            <button onClick={joinRoom}>Join Room</button>
           </form>
           <button onClick={createRoom}>Create Room</button>
           <div>Select an avatar</div>
           { Object.keys(AvatarConstants).map(key=>
             <img onClick={()=>selectAvatar(AvatarConstants[key].NAME)} src={AvatarConstants[key].DYING[0]} className={avatar===AvatarConstants[key].NAME?"avatar-selector avatar-selected":"avatar-selector"}/>
           )}
+          
+
+          <div>Select Game Mode</div>
+          <div className="game-mode-body">
+            { Object.keys(GameModes).map(key=>
+              <div onClick={()=>setGameMode(GameModes[key])} className={gameMode===GameModes[key]?"game-mode-selector avatar-selected":"game-mode-selector"} >{GameModes[key]}</div>
+            )}
+          </div>
         </div>
       </React.Fragment>
   }
   return (
-    <div className="" onClick={handleAppClick}>
+    <div className="" onClick={handleAppClick} onKeyDown={handlePlayerKeyPress} onKeyUp={handlePlayerKeyRelease} tabIndex="0">
       {errorShow?
         <div className="error-modal">
           <p>{errorMessage}</p>

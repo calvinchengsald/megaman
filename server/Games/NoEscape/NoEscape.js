@@ -89,7 +89,7 @@ class NoEscape {
         // remove attacks outside of bounds
         const validAttacks = []
         this.room.attacks.forEach(attack => {
-            if(this.attackInBounds(attack)){
+            if(this.attackInBounds(attack) && (!attack.state || attack.state!==PlayerState.DEAD)){
                 validAttacks.push(attack)
             }
         })
@@ -231,9 +231,12 @@ class NoEscape {
     checkCollision(player){
         const attacks = this.room.attacks
         for( var i = 0; i<attacks.length; i++){
+            //also might as well kill the missle that collided with the player
             if( Math.abs(attacks[i].x-player.x)<=GameConstants.COLLISION_TOLERANCE &&
-                Math.abs(attacks[i].y-player.y)<=GameConstants.COLLISION_TOLERANCE )
-            return true
+                Math.abs(attacks[i].y-player.y)<=GameConstants.COLLISION_TOLERANCE ) {
+                    attacks[i].state=PlayerState.DEAD
+                    return true
+                }
         }
         return false;
     }
