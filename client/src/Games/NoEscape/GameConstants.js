@@ -70,6 +70,18 @@ import boomerang_default_2 from '../../resources/attacks/boomerang/default_2.png
 import boomerang_default_3 from '../../resources/attacks/boomerang/default_3.png';
 import boomerang_default_4 from '../../resources/attacks/boomerang/default_4.png';
 
+import fireball_default_0 from '../../resources/attacks/fireball/default_0.png';
+import fireball_default_1 from '../../resources/attacks/fireball/default_1.png';
+import fireball_default_2 from '../../resources/attacks/fireball/default_2.png';
+import fireball_default_3 from '../../resources/attacks/fireball/default_3.png';
+import fireball_default_4 from '../../resources/attacks/fireball/default_4.png';
+
+import spike_default_0 from '../../resources/attacks/spike/default_0.png';
+import spike_default_1 from '../../resources/attacks/spike/default_1.png';
+import spike_default_2 from '../../resources/attacks/spike/default_2.png';
+import spike_default_3 from '../../resources/attacks/spike/default_3.png';
+import spike_default_4 from '../../resources/attacks/spike/default_4.png';
+
 
 export const AvatarConstants = {
     Spazz: {
@@ -181,6 +193,26 @@ export const AttackConstants = {
             boomerang_default_2,
             boomerang_default_3,
             boomerang_default_4
+        ]
+    },
+    Fireball: {
+        NAME: "Fireball",
+        DEFAULT: [
+            fireball_default_0,
+            fireball_default_1,
+            fireball_default_2,
+            fireball_default_3,
+            fireball_default_4
+        ]
+    },
+    Spike: {
+        NAME: "Spike",
+        DEFAULT: [
+            spike_default_0,
+            spike_default_1,
+            spike_default_2,
+            spike_default_3,
+            spike_default_4
         ]
     }
 }

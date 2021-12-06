@@ -87,11 +87,27 @@ const AttackConstants = {
     },
     Boomerang: {
         NAME: "Boomerang",
-        MOVE_SPEED_PER_FRAME: .7 / GameConstants.GAME_FPS,
+        MOVE_SPEED_PER_FRAME: .5 / GameConstants.GAME_FPS,
         ANIMATION_SPEED_PER_FRAME: 10 /GameConstants.GAME_FPS,
         ANIMATION_MAX_FRAME: 5,
         SPECIAL_ATTRIBUTES: {
             RETURN_COUNT: 1
+        }
+    },
+    Fireball: {
+        NAME: "Boomerang",
+        MOVE_SPEED_PER_FRAME: .2 / GameConstants.GAME_FPS,
+        ANIMATION_SPEED_PER_FRAME: 10 /GameConstants.GAME_FPS,
+        ANIMATION_MAX_FRAME: 5,
+        SPECIAL_ATTRIBUTES: {
+        }
+    },
+    Spike: {
+        NAME: "Spike",
+        MOVE_SPEED_PER_FRAME: .7 / GameConstants.GAME_FPS,
+        ANIMATION_SPEED_PER_FRAME: 10 /GameConstants.GAME_FPS,
+        ANIMATION_MAX_FRAME: 5,
+        SPECIAL_ATTRIBUTES: {
         }
     }
 }

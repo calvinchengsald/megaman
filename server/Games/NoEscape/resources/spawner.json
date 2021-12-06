@@ -21,21 +21,21 @@
         "waveCount" : 10
     },
     {
-        "triggerTime": 23,
+        "triggerTime": 22,
         "attack": "Boomerang",
         "spawnCount" : 1,
         "spawnInterval" : 1,
-        "waveCount" : 2
+        "waveCount" : 3
     },
     {
-        "triggerTime": 30,
+        "triggerTime": 28,
         "attack": "Burst",
         "spawnCount" : 1,
         "spawnInterval" : 0.2,
         "waveCount" : 10
     },
     {
-        "triggerTime": 35,
+        "triggerTime": 34,
         "attack": "Boomerang",
         "spawnCount" : 1,
         "spawnInterval" : 1,
@@ -45,42 +45,84 @@
         "triggerTime": 42,
         "attack": "Boomerang",
         "spawnCount" : 1,
-        "spawnInterval" : 1,
-        "waveCount" : 999
+        "spawnInterval" : 0.8,
+        "waveCount" : 10
     },
     {
-        "triggerTime": 42,
+        "triggerTime": 50,
+        "attack": "Spike",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 10
+    },
+    {
+        "triggerTime": 53,
         "attack": "Burst",
         "spawnCount" : 1,
         "spawnInterval" : 1,
-        "waveCount" : 999
+        "waveCount" : 7
     },
     {
-        "triggerTime": 52,
+        "triggerTime": 56,
+        "attack": "Burst",
+        "spawnCount" : 1,
+        "spawnInterval" : 1,
+        "waveCount" : 4
+    },
+    {
+        "triggerTime": 60,
+        "attack": "Fireball",
+        "spawnCount" : 2,
+        "spawnInterval" : 0.5,
+        "waveCount" : 15
+    },
+    {
+        "triggerTime": 65,
+        "attack": "Burst",
+        "spawnCount" : 2,
+        "spawnInterval" : 0.5,
+        "waveCount" : 20
+    },
+    {
+        "triggerTime": 70,
+        "attack": "Spike",
+        "spawnCount" : 2,
+        "spawnInterval" : 0.5,
+        "waveCount" : 25
+    },
+    {
+        "triggerTime": 75,
         "attack": "Boomerang",
-        "spawnCount" : 1,
-        "spawnInterval" : 1,
-        "waveCount" : 999
+        "spawnCount" : 2,
+        "spawnInterval" : 0.5,
+        "waveCount" : 30
     },
     {
-        "triggerTime": 52,
-        "attack": "Burst",
-        "spawnCount" : 1,
+        "triggerTime": 85,
+        "attack": "Spike",
+        "spawnCount" : 2,
         "spawnInterval" : 1,
-        "waveCount" : 999
+        "waveCount" : 9999
     },
     {
-        "triggerTime": 62,
+        "triggerTime": 85,
         "attack": "Boomerang",
-        "spawnCount" : 1,
+        "spawnCount" : 2,
         "spawnInterval" : 1,
-        "waveCount" : 999
+        "waveCount" : 9999
     },
     {
-        "triggerTime": 62,
+        "triggerTime": 85,
         "attack": "Burst",
-        "spawnCount" : 1,
-        "spawnInterval" : 1,
-        "waveCount" : 999
+        "spawnCount" : 2,
+        "spawnInterval" : 0.5,
+        "waveCount" : 9999
+    },
+    {
+        "triggerTime": 85,
+        "attack": "Fireball",
+        "spawnCount" : 2,
+        "spawnInterval" : 0.5,
+        "waveCount" : 9999
     }
 ]
