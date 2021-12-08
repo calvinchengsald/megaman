@@ -15,7 +15,7 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorShow, setErrorShow] = useState(false);
-  const [gameMode, setGameMode] = useState(GameModes.NO_ESCAPE);
+  const [gameMode, setGameMode] = useState(GameModes.TEAM_FIGHT);
 
   const [playerMoveMatrix, setPlayerMoveMatrix] = useState({
     MOVE_UP: false,
@@ -103,16 +103,50 @@ function App() {
   }
 
   const handlePlayerKeyPress = (e) =>{
-    changePlayerMovementMatrix(e.key, true);
+    handleKeyPres(e.key, true);
   }
   const handlePlayerKeyRelease = (e) =>{
-    changePlayerMovementMatrix(e.key, false);
+    handleKeyPres(e.key, false);
   }
+
+
+  // key - key pressed by player
+  // pushed - true if pushed, false if released
+  const handleKeyPres = (key, pushed) =>{
+    if(!playerMoveMatrix || !currentRoom) return
+
+    // these only apply for pushed keys
+    if(pushed){
+      switch(key){
+        case 'ArrowRight': 
+        case 'ArrowLeft': 
+        case 'ArrowUp': 
+        case 'ArrowDown': 
+          changePlayerMovementMatrix(key, pushed);
+          break;
+        case ' ':
+          const sendJson = {
+            roomCode: currentRoom.roomCode,
+            playerInputAction: PlayerInputOptions.ATTACK,
+            attack: AttackConstants.Burst.NAME
+          }
+          emitMsg(ClientMessageActions.PLAYER_INPUT, sendJson)
+          break;
+        default:
+          console.log(key)
+      }
+    }
+    // these only apply for released keys
+    else if(!pushed){
+      changePlayerMovementMatrix(key, pushed);
+    }
+
+  }
+
 
   // key - key pressed by player
   // toggle - set movement mode to true/false
   const changePlayerMovementMatrix = (key, toggle) => {
-    if(!playerMoveMatrix || !currentRoom) return
     const copyPlayerMoveMatrix = playerMoveMatrix;
     switch(key){
       case 'ArrowRight': 

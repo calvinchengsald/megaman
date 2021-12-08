@@ -57,9 +57,21 @@ Notes:
 
 TODO: 
 	seperate the animation to its own constant instead of game dependant
-	team fight game
+	countdown timer for when game starts
+	game not ending when player leaves - player still "in game" but not visable
+	middle boundary
+	shrink field
+	player exp
+	joining middle of game?
+	clean up frontend so press logic is seperated from app.js
 	
 COMPLETED
+
+	12/8
+	team fight game will seperate players into 2 teams
+	shoot attack
+	end game when 1 team dies
+	
 	12/5
 	json spawn controller for attack spawn rate etc
 	clean up UI to seperate the different views into its own classes

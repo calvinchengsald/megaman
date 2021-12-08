@@ -1,16 +1,21 @@
 const GameConstants = {
-    NAME: "No Escape",
+    NAME: "Team Fight",
     GAME_FPS: 40,
     SPRITE_UNIT_SIZE: .1,
     PLAYER_MOVE_SPEED_PER_SECOND: .4,
-    POINTS_PER_SECOND: 120
+    ATTACK_MOVE_SPEED_PER_SECOND: .3,
+    ATTACK_SPAWN_PER_SECOND: 1,
+    EXP_PER_SECOND: 120,
+    BOUND_SRINK_RATE_PER_SECOND: 0.01,
+    BOUND_SHRINK_START: 60
 }
 
 GameConstants.TIME_PER_FRAME = 1/GameConstants.GAME_FPS
 GameConstants.PLAYER_MOVE_SPEED_PER_FRAME = GameConstants.PLAYER_MOVE_SPEED_PER_SECOND/GameConstants.GAME_FPS
 GameConstants.ATTACK_MOVE_SPEED_PER_FRAME = GameConstants.ATTACK_MOVE_SPEED_PER_SECOND/GameConstants.GAME_FPS
 GameConstants.ATTACK_SPAWN_PER_FRAME = GameConstants.ATTACK_SPAWN_PER_SECOND/GameConstants.GAME_FPS
-GameConstants.POINTS_PER_FRAME = Math.floor(GameConstants.POINTS_PER_SECOND/GameConstants.GAME_FPS)
+GameConstants.EXP_PER_FRAME = Math.floor(GameConstants.EXP_PER_SECOND/GameConstants.GAME_FPS)
+GameConstants.BOUND_SRINK_RATE_PER_FRAME = GameConstants.BOUND_SRINK_RATE_PER_SECOND/GameConstants.GAME_FPS
 GameConstants.COLLISION_TOLERANCE = GameConstants.SPRITE_UNIT_SIZE/2
 
 /**
@@ -122,6 +127,11 @@ const AttackConstants = {
     }
 }
 
+const TeamConstants = {
+    LEFT: "LEFT",
+    RIGHT: "RIGHT"
+}
+
 const DirectionMatrix = {
     LEFT: "LEFT",
     RIGHT: "RIGHT",
@@ -133,5 +143,6 @@ module.exports = {
     GameConstants: GameConstants,
     AvatarConstants: AvatarConstants,
     AttackConstants: AttackConstants,
-    DirectionMatrix: DirectionMatrix
+    DirectionMatrix: DirectionMatrix,
+    TeamConstants: TeamConstants
 }

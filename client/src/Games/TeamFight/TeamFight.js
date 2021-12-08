@@ -17,7 +17,10 @@ class TeamFight extends React.Component {
                         return (<Sprite mainPlayer={this.props.clientId===player.clientId?true:false} type="avatar" name={player.displayName} model={player}></Sprite>)
                     }
                     })}
-                    {this.props.currentRoom && this.props.currentRoom.roomState===RoomState.IN_GAME && this.props.currentRoom.attacks && this.props.currentRoom.attacks.map((attack)=>
+                    {this.props.currentRoom && this.props.currentRoom.roomState===RoomState.IN_GAME && this.props.currentRoom.leftTeam.attacks && this.props.currentRoom.leftTeam.attacks.map((attack)=>
+                    <Sprite type="attack" model={attack}></Sprite>
+                    )}
+                    {this.props.currentRoom && this.props.currentRoom.roomState===RoomState.IN_GAME && this.props.currentRoom.rightTeam.attacks && this.props.currentRoom.rightTeam.attacks.map((attack)=>
                     <Sprite type="attack" model={attack}></Sprite>
                     )}
                 </div>

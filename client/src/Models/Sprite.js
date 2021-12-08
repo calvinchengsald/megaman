@@ -5,12 +5,13 @@ import './Sprite.css';
 class Sprite extends React.Component {
 
   render() {
+      const spriteSize = GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE*this.props.model.spriteSize;
       const spriteStyle = {
         position: 'absolute',
-        width: GameBoardConstants.SPRITE_SIZE+'px',
-        height: GameBoardConstants.SPRITE_SIZE+'px',
-        top:  (this.props.model.y*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px' ,
-        left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))  +'px',
+        width: spriteSize+'px',
+        height: spriteSize+'px',
+        top:  (this.props.model.y*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (spriteSize/2))  +'px' ,
+        left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (spriteSize/2))  +'px',
         zIndex: this.props.mainPlayer?98:1
       }
       if(this.props.model.moveDirection){
@@ -28,9 +29,9 @@ class Sprite extends React.Component {
       }
       const nameStyle = {
         position: 'absolute',
-        width: GameBoardConstants.SPRITE_SIZE+'px',
-        top:  (this.props.model.y*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - 20 - (GameBoardConstants.SPRITE_SIZE/2))   +'px' ,
-        left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (GameBoardConstants.SPRITE_SIZE/2))   +'px',
+        width: spriteSize+'px',
+        top:  (this.props.model.y*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - 20 - (spriteSize/2))   +'px' ,
+        left: (this.props.model.x*GameBoardConstants.GAME_BOARD_PLAYABLE_SIZE - (spriteSize/2))   +'px',
         'text-align': 'center'
       }
       const imageDiv = 

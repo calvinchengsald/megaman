@@ -19,7 +19,8 @@ const PlayerDetailOptions = {
 }
 const PlayerInputOptions = {
     MOVE: "MOVE",
-    START_GAME: "START_GAME"
+    START_GAME: "START_GAME",
+    ATTACK: "ATTACK"
 }
 
 const GameModes = {
@@ -27,6 +28,8 @@ const GameModes = {
     OTHER_GAME: "Other Game",
     TEAM_FIGHT: "Team Fight"
 }
+
+
 
 module.exports = {
     RoomState: RoomState,

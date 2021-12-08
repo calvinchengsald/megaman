@@ -13,8 +13,6 @@ class NoEscape {
         this.room = room
         this.room.attacks = []
         this.room.score = 0
-        //keeps track of the time this game has been running
-        this.room.timer = 0
         this.leaderboard = leaderboard
         this.setRoomHighScore()
         console.log(this.room)
@@ -45,6 +43,7 @@ class NoEscape {
         playerObject.y=0.5
         // if no avatar type then lets default to Spazz
         playerObject.type=playerObject.type?playerObject.type:AvatarConstants.Spazz.NAME
+        playerObject.spriteSize=GameConstants.SPRITE_UNIT_SIZE
     }
 
     run(noEscapeGame){
@@ -61,7 +60,6 @@ class NoEscape {
     }
 
     update() {
-        this.room.time += GameConstants.TIME_PER_FRAME
         this.room.score += GameConstants.POINTS_PER_FRAME
 
         // check for collision before movement
@@ -100,19 +98,18 @@ class NoEscape {
             this.handleAttackAnimation(attack)
         })
 
-        // createAttack
-        // this.createAttackSpawn+=GameConstants.ATTACK_SPAWN_PER_FRAME
-        // if(this.createAttackSpawn>1){
-        //     this.createAttackSpawn-=1
-        //     this.createAttack( Math.floor(Math.random()*2)>=1?AttackConstants.Burst.NAME:AttackConstants.Boomerang.NAME)
-        // }
-
         this.waveSpawners.map((waveSpawner)=>{
             waveSpawner.update(GameConstants.TIME_PER_FRAME)
         })
 
         //check for game over
         this.gameOver()
+    }
+
+    
+    handlePlayerInput(messageJson){
+        // no specific input handler for this game mode
+        return false;
     }
 
     //checks where the player is moving and move them
@@ -178,26 +175,6 @@ class NoEscape {
         }
     }
 
-    //checks if the conditions are met to end this game
-    gameOver(){
-        //all players are dead?
-        const players = this.room.players
-        var havePlayerAlive = false
-        for( var i = 0; i<players.length; i++){
-            if(players[i].state===PlayerState.ALIVE || players[i].state===PlayerState.DYING){
-                havePlayerAlive = true;
-            }
-        }
-
-        if(havePlayerAlive){
-            // not game over - nothing to do
-            return
-        }
-
-        //game over - end the game
-        this.end()
-    }
-
     // returns if this attack is still within the board and should be removed
     attackInBounds(attack){
         //for attacks that can rebound, reverse their direction if they are out of bounds
@@ -255,6 +232,7 @@ class NoEscape {
             type: attackName,
             animationFrame: 0,
             animationTimer: 1,
+            spriteSize: GameConstants.SPRITE_UNIT_SIZE,
             SPECIAL_ATTRIBUTES: {}
         }
         Object.assign(attack.SPECIAL_ATTRIBUTES,attackConstant.SPECIAL_ATTRIBUTES)
@@ -287,6 +265,12 @@ class NoEscape {
         attacks.push(attack)
     }
 
+    // set the room high score levels by copying whats in the Leaderboard
+    setRoomHighScore(){
+        this.room.highScore = this.leaderboard.highScore
+        this.room.highScoreName = this.leaderboard.highScoreName
+    }
+
     start(){
         console.log("start game")
         this.setRoomHighScore()
@@ -301,12 +285,12 @@ class NoEscape {
         })
         this.room.attacks = []
         this.room.score = 0
-        this.room.timer = 0
         this.waveSpawners.map((waveSpawner)=>{
             waveSpawner.initialize()
         })
         this.gameLoop = setInterval(this.run(), 0, this);
     }
+    
 
     end() {
         console.log("ending game")
@@ -326,11 +310,26 @@ class NoEscape {
         this.room.roomState=RoomState.IN_LOBBY
     }
 
-    // set the room high score levels by copying whats in the Leaderboard
-    setRoomHighScore(){
-        this.room.highScore = this.leaderboard.highScore
-        this.room.highScoreName = this.leaderboard.highScoreName
+    //checks if the conditions are met to end this game
+    gameOver(){
+        //all players are dead?
+        const players = this.room.players
+        var havePlayerAlive = false
+        for( var i = 0; i<players.length; i++){
+            if(players[i].state===PlayerState.ALIVE || players[i].state===PlayerState.DYING){
+                havePlayerAlive = true;
+            }
+        }
+
+        if(havePlayerAlive){
+            // not game over - nothing to do
+            return
+        }
+
+        //game over - end the game
+        this.end()
     }
+
         
 }
 

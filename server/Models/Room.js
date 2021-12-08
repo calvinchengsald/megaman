@@ -43,7 +43,8 @@ class Room {
                 }
                 return true;
             default:
-                return false;
+                // no recognizable input, pass handler to the game object
+                return this.gameObject.handlePlayerInput(messageJson)
         }
     }
 

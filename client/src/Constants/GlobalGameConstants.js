@@ -257,7 +257,8 @@ export const PlayerMoveOptions = {
 
 export const PlayerInputOptions = {
     MOVE: "MOVE",
-    START_GAME: "START_GAME"
+    START_GAME: "START_GAME",
+    ATTACK: "ATTACK"
 }
 
 export const PlayerDetailOptions = {
