@@ -26,9 +26,10 @@ class TeamFight {
         // room y position shrinkage. As the game goes on this value will increase
         // 0.5 will mean the whole screen is out of outbounds (50% top and 50% bottom)
         this.roomBound = 0
+        this.initializeBoundary();
+        
     }
 
-        
     // handle create game needed when creating this game.
     // event bubbled down from creating room
     handleCreateGame(playerObject){
@@ -51,6 +52,56 @@ class TeamFight {
         }
     }
 
+    // remove this target player from the left/right team
+    handlePlayerLeaveGame(clientId){
+        this.room.leftTeam.players=Utility.removeElementFromArrayByKey(this.room.leftTeam.players, "clientId", clientId)
+        this.room.rightTeam.players=Utility.removeElementFromArrayByKey(this.room.rightTeam.players, "clientId", clientId)
+        return true
+    }
+    
+    // boundaries are a square that is created by the 2 points
+    // units cannot move past this boundary
+    // for efficiency, boundaries must be created with the top-left point as Coordinate0 and bot-right point as Coordinate1
+    initializeBoundary(){
+        delete this.room.shrinkBoundary;
+        this.room.boundary = [
+            {
+                x0:0,
+                y0:0,
+                x1:1,
+                y1:0.05
+            },
+            {
+                x0:0,
+                y0:0,
+                x1:0.05,
+                y1:1
+            },
+            {
+                x0:0,
+                y0:0.95,
+                x1:1,
+                y1:1
+            },
+            {
+                x0:0.95,
+                y0:0,
+                x1:1,
+                y1:1
+            }
+        ]
+        // separated on its own because frontend does not need to render the boarders, but these blockers will need to be shown.
+        this.room.blockers = [
+            {
+                x0:0.35,
+                y0:0,
+                x1:0.65,
+                y1:1
+            }
+        ]
+        this.room.boundary.push(...this.room.blockers)
+    }
+
     run(teamFightGame){
         var skipTicks = 1000 / GameConstants.GAME_FPS;
         var nextGameTick = (new Date).getTime();
@@ -65,22 +116,45 @@ class TeamFight {
     }
 
     update(){
+        if(this.room.gameCountdownStartTime>0){
+            this.room.gameCountdownStartTime -= GameConstants.TIME_PER_FRAME
+            return
+        }
         this.room.timer += GameConstants.TIME_PER_FRAME
+        // handle boundary logic
+        if(this.room.timer > GameConstants.BOUND_SHRINK_START && (!this.room.shrinkBoundary || this.room.shrinkBoundary[0].y1<GameConstants.BOUND_SHRINK_MAX)){
+            if(this.room.shrinkBoundary){
+                this.room.shrinkBoundary[0].y1+=GameConstants.BOUND_SHRINK_RATE_PER_FRAME
+                this.room.shrinkBoundary[1].y0-=GameConstants.BOUND_SHRINK_RATE_PER_FRAME
+            } else {
+                this.room.shrinkBoundary = [
+                    {
+                        x0: 0,
+                        y0: 0,
+                        x1: 1,
+                        y1: 0.01
+                    },
+                    {
+                        x0: 0,
+                        y0: 0.99,
+                        x1: 1,
+                        y1: 1
+                    }
+                ]
+            }
+        }
+        this.handleShrinkBoundaryKill()
 
         // check for collision before movement
         // loop through all players, if they have move matrix and alive then move them
         this.room.leftTeam.players.forEach(player => {
             if(player.state===PlayerState.ALIVE) {
                 if(this.checkCollision(player, TeamConstants.LEFT)){
-                    console.log('player killed')
-                    player.state=PlayerState.DYING
-                    player.animationTimer=1
-                    player.animationFrame=0
+                    this.killPlayer(player)
                     return
                 } 
                 this.handlePlayerMovement(player)
             }
-
             if(player.state===PlayerState.ALIVE || player.state===PlayerState.DYING){
                 this.handlePlayerAnimation(player)
             }
@@ -89,15 +163,11 @@ class TeamFight {
         this.room.rightTeam.players.forEach(player => {
             if(player.state===PlayerState.ALIVE) {
                 if(this.checkCollision(player, TeamConstants.RIGHT)){
-                    console.log('player killed')
-                    player.state=PlayerState.DYING
-                    player.animationTimer=1
-                    player.animationFrame=0
+                    this.killPlayer(player)
                     return
                 } 
                 this.handlePlayerMovement(player)
             }
-
             if(player.state===PlayerState.ALIVE || player.state===PlayerState.DYING){
                 this.handlePlayerAnimation(player)
             }
@@ -111,6 +181,28 @@ class TeamFight {
         this.gameOver()
     }
     
+    killPlayer(player){
+        console.log('player killed')
+        player.state=PlayerState.DYING
+        player.animationTimer=1
+        player.animationFrame=0
+    }
+
+    // for any players within the boundary, if they are GameConstants.BOUND_SHRINK_KILL_DISTANCE distance from the edge, then kill them
+    handleShrinkBoundaryKill(){
+        if(!this.room.shrinkBoundary || this.room.shrinkBoundary.length===0) return
+        for(const player of this.room.leftTeam.players){
+            if(player.state===PlayerState.ALIVE && !Utility.isWithinPlayableAreaKillZone(this.room.shrinkBoundary, player.x, player.y, GameConstants.BOUND_SHRINK_KILL_DISTANCE)){
+                this.killPlayer(player)
+            }
+        }
+        for(const player of this.room.rightTeam.players){
+            if(player.state===PlayerState.ALIVE && !Utility.isWithinPlayableAreaKillZone(this.room.shrinkBoundary, player.x, player.y, GameConstants.BOUND_SHRINK_KILL_DISTANCE)){
+                this.killPlayer(player)
+            }
+        }
+    }
+
     /**
      * handles all attack animation and movement
      * @param [Object] attacks - array of attack jsons
@@ -135,21 +227,29 @@ class TeamFight {
     // also keeps them within the boundary of the board
     handlePlayerMovement(player){
         if(player.state !== PlayerState.ALIVE) return
+        if(!player.MOVE_UP && !player.MOVE_DOWN && !player.MOVE_LEFT && !player.MOVE_RIGHT) return
+        let newY = player.y
+        let newX = player.x
+
         if(player.MOVE_UP){
-            player.y -= GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
-            player.y = Math.max(player.y, 0.05)
+            newY = player.y - GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
         }
         if(player.MOVE_DOWN){
-            player.y += GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
-            player.y = Math.min(player.y, 0.95)
+            newY = player.y + GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
+        }
+        if(Utility.isWithinPlayableArea(this.room.boundary, newX, newY)){
+            player.x = newX
+            player.y = newY
         }
         if(player.MOVE_LEFT){
-            player.x -= GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
-            player.x = Math.max(player.x, 0.05)
+            newX = player.x - GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
         }
         if(player.MOVE_RIGHT){
-            player.x += GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
-            player.x = Math.min(player.x, 0.95)
+            newX = player.x + GameConstants.PLAYER_MOVE_SPEED_PER_FRAME
+        }
+        if(Utility.isWithinPlayableArea(this.room.boundary, newX, newY)){
+            player.x = newX
+            player.y = newY
         }
     }
 
@@ -323,6 +423,8 @@ class TeamFight {
         this.room.leftTeam.attacks=[]
         this.room.rightTeam.attacks=[]
         this.room.timer = 0
+        this.initializeBoundary()
+        this.room.gameCountdownStartTime = GameConstants.GAME_COUNTDOWN_START_TIME
         this.gameLoop = setInterval(this.run(), 0, this);
     }
 
@@ -354,7 +456,7 @@ class TeamFight {
             }
         }
 
-        if(havePlayerAliveLeft && havePlayerAliveRight){
+        if(havePlayerAliveLeft || havePlayerAliveRight){
             // not game over - nothing to do
             return
         }

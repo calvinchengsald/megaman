@@ -59,6 +59,8 @@ class Room {
             this.roomJson.hostId=this.roomJson.players[0].clientId
             this.roomJson.hostName=this.roomJson.players[0].displayName
         }
+        // do any handling that may be needed in game
+        this.gameObject.handlePlayerLeaveGame(clientId)
         return true
     }
 

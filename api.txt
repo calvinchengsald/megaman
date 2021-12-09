@@ -26,6 +26,17 @@ rooms {}
 		hostId: client id of the host
 		hostName: display name of host
 		roomState: IN_LOBBY / IN_GAME
+		gameCountdownStartTime: Seconds until the game starts
+		blockers: [] squares formed by these 2 points are not travesable by players
+			x0
+			y0
+			x1
+			y1
+		shrinkBoundary: [] squares formed by these 2 points will cause players to take damage when traversed
+			x0
+			y0
+			x1
+			y1
 		players: []
 			clientId: client id of this player
 			displayName: display name of this player
@@ -43,7 +54,6 @@ rooms {}
 			animationFrame: the current animation frame
 			animationTimer: countdown timer until animation frame is incrememted
 			
-			
 	}
 	
 	
@@ -57,19 +67,20 @@ Notes:
 
 TODO: 
 	seperate the animation to its own constant instead of game dependant
-	countdown timer for when game starts
-	game not ending when player leaves - player still "in game" but not visable
-	middle boundary
-	shrink field
 	player exp
 	joining middle of game?
 	clean up frontend so press logic is seperated from app.js
 	
 COMPLETED
-
 	12/8
+	game not ending when player leaves - player still "in game" but not visable
+	countdown timer for when game starts
+	middle boundary
+	shrink field
+
+	12/7
 	team fight game will seperate players into 2 teams
-	shoot attack
+	able to shoot attack
 	end game when 1 team dies
 	
 	12/5

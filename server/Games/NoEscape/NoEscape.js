@@ -15,6 +15,7 @@ class NoEscape {
         this.room.score = 0
         this.leaderboard = leaderboard
         this.setRoomHighScore()
+        this.room.gameCountdownStartTime = GameConstants.GAME_COUNTDOWN_START_TIME
         console.log(this.room)
 
         // counts up, when reachs 1 will spawn an attack
@@ -46,6 +47,12 @@ class NoEscape {
         playerObject.spriteSize=GameConstants.SPRITE_UNIT_SIZE
     }
 
+
+    // no need for any specific handling here
+    handlePlayerLeaveGame(clientId){
+        return true
+    }
+
     run(noEscapeGame){
         var skipTicks = 1000 / GameConstants.GAME_FPS;
         var nextGameTick = (new Date).getTime();
@@ -60,6 +67,11 @@ class NoEscape {
     }
 
     update() {
+        if(this.room.gameCountdownStartTime>0){
+            this.room.gameCountdownStartTime -= GameConstants.TIME_PER_FRAME
+            return
+        }
+
         this.room.score += GameConstants.POINTS_PER_FRAME
 
         // check for collision before movement
@@ -288,6 +300,7 @@ class NoEscape {
         this.waveSpawners.map((waveSpawner)=>{
             waveSpawner.initialize()
         })
+        this.room.gameCountdownStartTime = GameConstants.GAME_COUNTDOWN_START_TIME
         this.gameLoop = setInterval(this.run(), 0, this);
     }
     

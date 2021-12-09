@@ -40,6 +40,9 @@
 .game-board{
   position: absolute;
   background-color: grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .playable-board{
   position: absolute;
@@ -84,4 +87,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.game-message{
+  width: 200px;
+  height: 120px;
+  background-color: rgb(93, 199, 80);
+  border-radius: 25px;
+  border: solid rgb(58, 207, 226) 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+}
+
+.boundary{
+  position: absolute;
+  background-color: black;
+}
+.shrink-boundary{
+  position: absolute;
+  background-color: rgb(199, 93, 93, 0.8);
 }

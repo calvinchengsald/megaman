@@ -3,7 +3,8 @@ const GameConstants = {
     GAME_FPS: 40,
     SPRITE_UNIT_SIZE: .1,
     PLAYER_MOVE_SPEED_PER_SECOND: .4,
-    POINTS_PER_SECOND: 120
+    POINTS_PER_SECOND: 120,
+    GAME_COUNTDOWN_START_TIME: 4
 }
 
 GameConstants.TIME_PER_FRAME = 1/GameConstants.GAME_FPS

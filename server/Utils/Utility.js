@@ -36,6 +36,38 @@ function removeElementFromArrayByKey( array , primaryKeyName, primaryKeyValue) {
     return newArray;
 }
 
+/**
+ * Checks if this x/y coordinate does not exist inside any boundary in 'boundaryArray'
+ * WARNING: this method assumes boundaries are created with the top-left point as Coordinate0 and bot-right point as Coordinate1
+ * @param [] boundaryArray - array of boundary json, denoted with x0,y0,x1,y1. Boundary is a square created between these 2 coordinates 
+ * @param {int} x x coordinate being checked 
+ * @param {int} y y coordinate being checked
+ */
+function isWithinPlayableArea( boundaryArray, x, y){
+    for(const boundary of boundaryArray){
+        if(x >= boundary.x0 && x<=boundary.x1 && y >= boundary.y0 && y<=boundary.y1){
+            return false
+        }
+    }
+    return true
+}
+
+// similar to isWithinBoundary except player also needs to be 'killDistance' deep into the boundary
+function isWithinPlayableAreaKillZone(boundaryArray, x, y, killDistance){
+    for(const boundary of boundaryArray){
+        if(x >= boundary.x0 && x<=boundary.x1 && y >= boundary.y0 && y<=boundary.y1 && isWithinPlayableAreaKillDistance(boundary, x,y,killDistance)){
+            return false
+        }
+    }
+    return true
+}
+
+//helper method that checks if this unit is 'killDistance' deep into the boundary for main method isWithinBoundaryKillZone
+function isWithinPlayableAreaKillDistance( boundary, x, y, killDistance){
+    return (Math.abs(x-boundary.x0)>killDistance || Math.abs(x-boundary.x1)>killDistance ||
+            Math.abs(y-boundary.y0)>killDistance || Math.abs(y-boundary.y1)>killDistance)
+}
+
 
 function basicJson(field, value) {
     return {
@@ -62,5 +94,7 @@ module.exports = {
     existsInArray: existsInArray,
     existsInObject: existsInObject,
     removeElementFromArrayByKey: removeElementFromArrayByKey,
-    getFromArray: getFromArray
+    getFromArray: getFromArray,
+    isWithinPlayableArea: isWithinPlayableArea,
+    isWithinPlayableAreaKillZone: isWithinPlayableAreaKillZone
 }

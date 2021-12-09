@@ -6,8 +6,10 @@ const GameConstants = {
     ATTACK_MOVE_SPEED_PER_SECOND: .3,
     ATTACK_SPAWN_PER_SECOND: 1,
     EXP_PER_SECOND: 120,
-    BOUND_SRINK_RATE_PER_SECOND: 0.01,
-    BOUND_SHRINK_START: 60
+    BOUND_SRINK_RATE_PER_SECOND: 0.05,
+    BOUND_SHRINK_START: 3,
+    BOUND_SHRINK_MAX: 0.4,
+    GAME_COUNTDOWN_START_TIME: 1
 }
 
 GameConstants.TIME_PER_FRAME = 1/GameConstants.GAME_FPS
@@ -15,8 +17,11 @@ GameConstants.PLAYER_MOVE_SPEED_PER_FRAME = GameConstants.PLAYER_MOVE_SPEED_PER_
 GameConstants.ATTACK_MOVE_SPEED_PER_FRAME = GameConstants.ATTACK_MOVE_SPEED_PER_SECOND/GameConstants.GAME_FPS
 GameConstants.ATTACK_SPAWN_PER_FRAME = GameConstants.ATTACK_SPAWN_PER_SECOND/GameConstants.GAME_FPS
 GameConstants.EXP_PER_FRAME = Math.floor(GameConstants.EXP_PER_SECOND/GameConstants.GAME_FPS)
-GameConstants.BOUND_SRINK_RATE_PER_FRAME = GameConstants.BOUND_SRINK_RATE_PER_SECOND/GameConstants.GAME_FPS
+GameConstants.BOUND_SHRINK_RATE_PER_FRAME = GameConstants.BOUND_SRINK_RATE_PER_SECOND/GameConstants.GAME_FPS
+// how far the center of the sprite to the target unit before they are considered colliding
 GameConstants.COLLISION_TOLERANCE = GameConstants.SPRITE_UNIT_SIZE/2
+// how far the sprite needs to be into the shrinking boundary before its killed off
+GameConstants.BOUND_SHRINK_KILL_DISTANCE = GameConstants.SPRITE_UNIT_SIZE*2
 
 /**
  * ANIMATION_SPEED_PER_FRAME = Number of frames expected to animate per second / FPS of game
