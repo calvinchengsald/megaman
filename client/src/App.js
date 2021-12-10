@@ -6,6 +6,8 @@ import { ClientMessageActions } from './Constants/ClientMessageActions'
 import { AvatarConstants, AttackConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions } from './Constants/GlobalGameConstants'
 import Sprite from './Models/Sprite'
 import Room from './Models/Room'
+import shotgun from './resources/weapons/shotgun.png'
+import burst from './resources/bullets/burst.png'
 
 import './App.css';
 import { client } from 'websocket';
@@ -16,6 +18,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorShow, setErrorShow] = useState(false);
   const [gameMode, setGameMode] = useState(GameModes.TEAM_FIGHT);
+  const [player, setPlayer] = useState('');
 
   const [playerMoveMatrix, setPlayerMoveMatrix] = useState({
     MOVE_UP: false,
@@ -72,9 +75,8 @@ function App() {
       case ServerMessageActions.CONNECT: 
         setClientId(messageJson.clientId);
         const sendJson = basicJsonWithClientId("displayName", displayName, messageJson.clientId)
+        setPlayer(messageJson.player)
         sendJson.playerDetailAction = PlayerDetailOptions.DISPLAY_NAME
-        // console.log("about to send joso")
-        // console.log(sendJson)
         eventSocket.emit(ClientMessageActions.PLAYER_DETAIL, JSON.stringify(sendJson));
         break;
     }
@@ -249,6 +251,25 @@ function App() {
               <div onClick={()=>setGameMode(GameModes[key])} className={gameMode===GameModes[key]?"game-mode-selector avatar-selected":"game-mode-selector"} >{GameModes[key]}</div>
             )}
           </div>
+          <div className="container">
+            <div className="inventory-box">
+              <div className="inventory">
+                <div>Weapons</div>
+                {player.weapons && player.weapons.map((weapon) =>
+                  <img className={"item-icon rarity rarity-" +weapon.rarity} src={shotgun}/>
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="inventory">
+                <div>Bullets</div>
+                {player.bullets && player.bullets.map((bullet) =>
+                  <img className={"item-icon rarity rarity-" +bullet.rarity} src={burst}/>
+                )}
+              </div>
+            </div>
+          </div>
+          
         </div>
       </React.Fragment>
   }

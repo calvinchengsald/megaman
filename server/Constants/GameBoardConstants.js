@@ -29,6 +29,14 @@ const GameModes = {
     TEAM_FIGHT: "Team Fight"
 }
 
+const Rarity = {
+    COMMON: "Common",
+    UNCOMMON: "Uncommon",
+    RARE: "Rare",
+    EPIC: "Epic",
+    LEGENDARY: "Legendary"
+
+}
 
 
 module.exports = {
@@ -36,5 +44,6 @@ module.exports = {
     PlayerState: PlayerState,
     PlayerInputOptions: PlayerInputOptions,
     PlayerDetailOptions: PlayerDetailOptions,
-    GameModes: GameModes
+    GameModes: GameModes,
+    Rarity: Rarity
 }

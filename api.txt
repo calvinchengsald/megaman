@@ -13,13 +13,23 @@ alias update='cd ~/megaman && git pull'
 
 ROOM OBJECT
 
-clients {}
+clients []
 	clientId: client {
 		displayName: display name of this client
 		socket: socket for htis connection
 		roomCode: the roomCode that this player is currently in
+		weapons: []
+			id: id of this individual weapon
+			type: weapon type
+			rarity: Rarity.COMMON 
+			bulletId: [] - list of bullets loaded into this weapon
+		bullets: []
+			id: id of this individual bullet
+			type: bullet type
+			rarity: Rarity.COMMON
+			weaponId : id of the weapon this bullet is loaded into
 	}
-rooms {}
+rooms []
 	roomCode: room {
 		gameType: The game mode for this room
 		roomCode : 5 letter
@@ -70,8 +80,13 @@ TODO:
 	player exp
 	joining middle of game?
 	clean up frontend so press logic is seperated from app.js
+	seperate backend logic so that central game logic is not duplicated in NoEscape and TeamFight
 	
 COMPLETED
+	12/9
+	init weapon and bullet json 
+	init ui for weapon and bullet
+
 	12/8
 	game not ending when player leaves - player still "in game" but not visable
 	countdown timer for when game starts

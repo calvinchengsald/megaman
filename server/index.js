@@ -2,7 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
-const { GameModes, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions }  = require('./Constants/GameBoardConstants');
+const { GameModes, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions, Rarity }  = require('./Constants/GameBoardConstants');
 const { NoEscape: NoEscape }  = require('./Games/NoEscape/NoEscape');
 const { TeamFight: TeamFight }  = require('./Games/TeamFight/TeamFight');
 const { Room: Room }  = require('./Models/Room');
@@ -51,12 +51,48 @@ io.on('connection', (socket) => {
     //generate a new clientId
     const clientId = uuidv4();
     clients[clientId] = {
-        "socket":  socket
+        "socket":  socket,
+        player: {
+            weapons: [
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.COMMON
+                },
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.RARE
+                }
+            ],
+            bullets: [
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.UNCOMMON
+                },
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.COMMON
+                },
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.RARE
+                },
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.EPIC
+                },
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.LEGENDARY
+                }
+            ]
+        }
+        
     }
 
     const payLoad = {
         "method": ServerMessageActions.CONNECT,
-        "clientId": clientId
+        "clientId": clientId,
+        player: clients[clientId].player
     }
     socket.on('disconnect', ()=>handleDisconnect(clientId));
     //send back the client connect
