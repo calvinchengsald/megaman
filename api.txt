@@ -83,6 +83,10 @@ TODO:
 	seperate backend logic so that central game logic is not duplicated in NoEscape and TeamFight
 	
 COMPLETED
+	12/12
+	tab view for ui
+	init inventory view schema
+	
 	12/9
 	init weapon and bullet json 
 	init ui for weapon and bullet

@@ -88,6 +88,7 @@ io.on('connection', (socket) => {
         }
         
     }
+    initializeDefaultPlayer(clients[clientId])
 
     const payLoad = {
         "method": ServerMessageActions.CONNECT,
@@ -98,6 +99,15 @@ io.on('connection', (socket) => {
     //send back the client connect
     socket.send(JSON.stringify(payLoad))
 });
+
+function initializeDefaultPlayer(client){
+    for(let i=0; i<20; i++){
+        client.player.bullets.push({
+            id: uuidv4(),
+            rarity: Rarity.UNCOMMON
+        })
+    }
+}
 
 function emitError(clientId, errorMessage){
     clients[clientId].socket.emit(ServerMessageActions.ERROR, JSON.stringify(Utility.basicJson("message", errorMessage)))

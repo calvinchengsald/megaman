@@ -111,38 +111,26 @@
 }
 
 .container{
-  width: 1000px;
-  height: 800px;
-  border: solid red 2px;
+  width: 95vw;
+  height: 95vh;
 }
-.inventory-box{
+.tab-header{
+  margin: 0;
   display: flex;
   flex-direction: row;
-  border: solid rgb(58, 207, 226) 2px;
 }
-.inventory{
-  background-color: rgba(173, 207, 189, 0.877);
+.tab{
+  border: solid blue 2px;
+  min-width: 200px;
+  text-align: center;
+  background:  rgb(227, 241, 241);
+  border-radius: 10px 10px 0px 0px;
+  border-bottom-width: 0px;
 }
-.item-icon{
-  width: 100px;
-  height: 100px;
+.tab-bg-selected{
+  background: turquoise;
 }
-.rarity{
-  border: solid 5px;
-  border-radius: 10px;
-}
-.rarity-Uncommon{
-  border-color: white;
-}
-.rarity-Common{
-  border-color: green;
-}
-.rarity-Rare{
-  border-color: blue;
-}
-.rarity-Epic{
-  border-color: purple;
-}
-.rarity-Legendary{
-  border-color: gold;
+.tab-content{
+  border: solid turquoise 15px;
+  height: 95%;
 }

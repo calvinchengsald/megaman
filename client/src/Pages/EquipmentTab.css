@@ -1,0 +1,49 @@
+
+.inventory-container{
+    border: solid red 5px;
+    min-height: 99%;
+    display: flex;
+    flex-direction: column;
+    
+}
+.bullet-container, .weapon-container{
+    border: solid red 2px;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    max-height: 45vh;
+}
+.stat-card{
+    min-width: 70%;
+    background: lightblue
+}
+.inventory{
+    flex-grow: 1;
+    background-color: rgba(173, 207, 189, 0.877);
+    overflow: auto;
+}
+
+
+  .item-icon{
+    width: 100px;
+    height: 100px;
+  }
+  .rarity{
+    border: solid 5px;
+    border-radius: 10px;
+  }
+  .rarity-Uncommon{
+    border-color: white;
+  }
+  .rarity-Common{
+    border-color: green;
+  }
+  .rarity-Rare{
+    border-color: blue;
+  }
+  .rarity-Epic{
+    border-color: purple;
+  }
+  .rarity-Legendary{
+    border-color: gold;
+  }

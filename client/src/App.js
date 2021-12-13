@@ -6,11 +6,12 @@ import { ClientMessageActions } from './Constants/ClientMessageActions'
 import { AvatarConstants, AttackConstants, GameModes, PlayerMoveOptions, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions } from './Constants/GlobalGameConstants'
 import Sprite from './Models/Sprite'
 import Room from './Models/Room'
-import shotgun from './resources/weapons/shotgun.png'
-import burst from './resources/bullets/burst.png'
+import Connect from './Pages/Connect'
 
 import './App.css';
 import { client } from 'websocket';
+import { ViewTab } from './Constants/ViewTab';
+import EquipmentTab from './Pages/EquipmentTab';
 
 function App() {
   var defaultSocket;
@@ -19,6 +20,7 @@ function App() {
   const [errorShow, setErrorShow] = useState(false);
   const [gameMode, setGameMode] = useState(GameModes.TEAM_FIGHT);
   const [player, setPlayer] = useState('');
+  const [currentTab, setCurrentTab] = useState(ViewTab.GAME);
 
   const [playerMoveMatrix, setPlayerMoveMatrix] = useState({
     MOVE_UP: false,
@@ -203,76 +205,48 @@ function App() {
   // useEffect(() => {
   //   return () => socket?socket.close():console.log('no socket to close');
   // });
-  
-  let viewFragment = "";
-  let currentView = "";
-  if(!socket){
-    currentView = "DISPLAY_NAME"
-    viewFragment =
-      <div className="chat-container">
-        <form onSubmit={connectToServer}>
+  let ConnectFragment = <Connect connectToServer={connectToServer} displayName={displayName} setDisplayName={setDisplayName}/>
+  let GameRoomFragment = <Room currentRoom={currentRoom} clientId={clientId} emitMsg={(path, msg)=>emitMsg(path, msg)}></Room>
+  let EquipmentFragment = <EquipmentTab player={player}/>
+  let MenuFragment = 
+    <React.Fragment>
+      <div>
+        <div>Display Name: {displayName}</div>
+        <div>Client Id: {clientId}</div>
+        <form onSubmit={joinRoom}>
           <input
-            autoFocus value={displayName} placeholder="Display Name"
-            onChange={(e) => {
-              setDisplayName(e.currentTarget.value);
-            }}
+              value={joinRoomCode} placeholder="Join Room" onChange={(e) => {
+                setJoinRoomCode(e.currentTarget.value);
+              }}
           />
+          <button onClick={joinRoom}>Join Room</button>
         </form>
-      </div>
-  } else if (currentRoom){
-    currentView = "ROOM"
-    viewFragment = <Room currentRoom={currentRoom} clientId={clientId} emitMsg={(path, msg)=>emitMsg(path, msg)}></Room>
-      
-  } else {
-    currentView = "MENU"
-    viewFragment =
-      <React.Fragment>
-        <div>
-          <div>Display Name: {displayName}</div>
-          <div>Client Id: {clientId}</div>
-          <form onSubmit={joinRoom}>
-            <input
-                value={joinRoomCode} placeholder="Join Room" onChange={(e) => {
-                  setJoinRoomCode(e.currentTarget.value);
-                }}
-            />
-            <button onClick={joinRoom}>Join Room</button>
-          </form>
-          <button onClick={createRoom}>Create Room</button>
-          <div>Select an avatar</div>
-          { Object.keys(AvatarConstants).map(key=>
-            <img onClick={()=>selectAvatar(AvatarConstants[key].NAME)} src={AvatarConstants[key].DYING[0]} className={avatar===AvatarConstants[key].NAME?"avatar-selector avatar-selected":"avatar-selector"}/>
-          )}
-          
+        <button onClick={createRoom}>Create Room</button>
+        <div>Select an avatar</div>
+        { Object.keys(AvatarConstants).map(key=>
+          <img onClick={()=>selectAvatar(AvatarConstants[key].NAME)} src={AvatarConstants[key].DYING[0]} className={avatar===AvatarConstants[key].NAME?"avatar-selector avatar-selected":"avatar-selector"}/>
+        )}
+        
 
-          <div>Select Game Mode</div>
-          <div className="game-mode-body">
-            { Object.keys(GameModes).map(key=>
-              <div onClick={()=>setGameMode(GameModes[key])} className={gameMode===GameModes[key]?"game-mode-selector avatar-selected":"game-mode-selector"} >{GameModes[key]}</div>
-            )}
-          </div>
-          <div className="container">
-            <div className="inventory-box">
-              <div className="inventory">
-                <div>Weapons</div>
-                {player.weapons && player.weapons.map((weapon) =>
-                  <img className={"item-icon rarity rarity-" +weapon.rarity} src={shotgun}/>
-                )}
-              </div>
-            </div>
-            <div>
-              <div className="inventory">
-                <div>Bullets</div>
-                {player.bullets && player.bullets.map((bullet) =>
-                  <img className={"item-icon rarity rarity-" +bullet.rarity} src={burst}/>
-                )}
-              </div>
-            </div>
-          </div>
-          
+        <div>Select Game Mode</div>
+        <div className="game-mode-body">
+          { Object.keys(GameModes).map(key=>
+            <div onClick={()=>setGameMode(GameModes[key])} className={gameMode===GameModes[key]?"game-mode-selector avatar-selected":"game-mode-selector"} >{GameModes[key]}</div>
+          )}
         </div>
-      </React.Fragment>
-  }
+      </div>
+    </React.Fragment>
+
+  let TabFragment;
+  switch(currentTab){
+    case ViewTab.GAME:
+      TabFragment=currentRoom?GameRoomFragment:MenuFragment
+      break;
+    case ViewTab.EQUIPMENT:
+      TabFragment=EquipmentFragment
+      break;
+  }         
+
   return (
     <div className="" onClick={handleAppClick} onKeyDown={handlePlayerKeyPress} onKeyUp={handlePlayerKeyRelease} tabIndex="0">
       {errorShow?
@@ -282,12 +256,26 @@ function App() {
         :
         <React.Fragment/>
       }
-      <header className="app-header">
+      {/* <header className="app-header">
         {displayName}
-      </header>
-      {viewFragment}
+      </header> */}
+      {!socket?
+        ConnectFragment
+        :
+        <div className="container">
+          <div className="tab-header">
+            {
+              Object.keys(ViewTab).map(tab=><div className={currentTab===ViewTab[tab]?"tab tab-bg-selected":"tab"} onClick={()=>setCurrentTab(ViewTab[tab])}>{ViewTab[tab]}</div>)
+            }
+          </div>
+          <div className='tab-content'>
+            {TabFragment}
+          </div>
+        </div>
+      }
     </div>
   );
 }
+
 
 export default App;
