@@ -22,12 +22,15 @@ clients []
 			id: id of this individual weapon
 			type: weapon type
 			rarity: Rarity.COMMON 
-			bulletId: [] - list of bullets loaded into this weapon
+			bullets: [] - list of bullets loaded into this weapon
+			slots: how many bullets can be loaded into this weapon
 		bullets: []
 			id: id of this individual bullet
 			type: bullet type
 			rarity: Rarity.COMMON
 			weaponId : id of the weapon this bullet is loaded into
+			damage: damage per bullet
+			reloadSpeed: speed for next bullet after this to be fired
 	}
 rooms []
 	roomCode: room {
@@ -81,8 +84,14 @@ TODO:
 	joining middle of game?
 	clean up frontend so press logic is seperated from app.js
 	seperate backend logic so that central game logic is not duplicated in NoEscape and TeamFight
+	implement bullet load and unloading
 	
 COMPLETED
+	12/16
+	stat card screen for weapon and bullets
+	show weapon and all loaded  bullets
+	selection of item will highlight
+	
 	12/12
 	tab view for ui
 	init inventory view schema

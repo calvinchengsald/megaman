@@ -13,16 +13,15 @@
     flex-grow: 1;
     max-height: 45vh;
 }
-.stat-card{
-    min-width: 70%;
-    background: lightblue
-}
 .inventory{
     flex-grow: 1;
     background-color: rgba(173, 207, 189, 0.877);
     overflow: auto;
 }
 
+.selected{
+  background-color: yellow;
+}
 
   .item-icon{
     width: 100px;
@@ -31,6 +30,10 @@
   .rarity{
     border: solid 5px;
     border-radius: 10px;
+  }
+  
+  .rarity-None{
+    border-color: grey;
   }
   .rarity-Uncommon{
     border-color: white;

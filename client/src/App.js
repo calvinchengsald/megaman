@@ -20,7 +20,7 @@ function App() {
   const [errorShow, setErrorShow] = useState(false);
   const [gameMode, setGameMode] = useState(GameModes.TEAM_FIGHT);
   const [player, setPlayer] = useState('');
-  const [currentTab, setCurrentTab] = useState(ViewTab.GAME);
+  const [currentTab, setCurrentTab] = useState(ViewTab.EQUIPMENT);
 
   const [playerMoveMatrix, setPlayerMoveMatrix] = useState({
     MOVE_UP: false,
@@ -33,6 +33,8 @@ function App() {
   const [displayName, setDisplayName] = useState('Cowvin');
   const [avatar, setAvatar] = useState(AvatarConstants.Spazz.NAME);
   const [clientId, setClientId] = useState('');
+  const [selectedWeapon, setSelectedWeapon] = useState(null);
+  const [selectedBullet, setSelectedBullet] = useState(null);
   
   const connectToServer = (e) => {
     e.preventDefault();
@@ -207,7 +209,10 @@ function App() {
   // });
   let ConnectFragment = <Connect connectToServer={connectToServer} displayName={displayName} setDisplayName={setDisplayName}/>
   let GameRoomFragment = <Room currentRoom={currentRoom} clientId={clientId} emitMsg={(path, msg)=>emitMsg(path, msg)}></Room>
-  let EquipmentFragment = <EquipmentTab player={player}/>
+  let EquipmentFragment = <EquipmentTab setSelectedWeapon={setSelectedWeapon} setSelectedBullet={setSelectedBullet} player={player}
+                            selectedWeapon={selectedWeapon}
+                            selectedBullet={selectedBullet}
+                          />
   let MenuFragment = 
     <React.Fragment>
       <div>

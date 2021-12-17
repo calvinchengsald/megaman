@@ -3,27 +3,28 @@
 import shotgun from '../resources/weapons/shotgun.png'
 import burst from '../resources/bullets/burst.png'
 import './EquipmentTab.css'
+import StatCard from '../Models/StatCard'
+import {StatCardTypes} from '../Models/StatCard'
 const EquipmentTab = (props) => {
-    console.log(props)
     return(
         <div className="inventory-container">
           <div className="weapon-container">
             <div className="inventory">
               <div>Weapons</div>
               {props.player.weapons && props.player.weapons.map((weapon) =>
-                <img className={"item-icon rarity rarity-" +weapon.rarity} src={shotgun}/>
+                <img onClick={()=>props.setSelectedWeapon(weapon)} className={"item-icon rarity rarity-" +weapon.rarity + (props.selectedWeapon&&props.selectedWeapon.id===weapon.id?" selected":"")} src={shotgun}/>
               )}
             </div>
-            <div className="stat-card">Stat Card here</div>
+            <StatCard item={props.selectedWeapon} setSelectedBullet={props.setSelectedBullet} selectedBullet={props.selectedBullet} type={StatCardTypes.WEAPON} bullets={props.player.bullets}/>
           </div>
           <div className="bullet-container">
             <div className="inventory">
               <div>Bullets</div>
               {props.player.bullets && props.player.bullets.map((bullet) =>
-                <img className={"item-icon rarity rarity-" +bullet.rarity} src={burst}/>
+                <img onClick={()=>props.setSelectedBullet(bullet)} className={"item-icon rarity rarity-" +bullet.rarity + (props.selectedBullet&&props.selectedBullet.id===bullet.id?" selected":"")} src={burst}/>
               )}
             </div>
-            <div className="stat-card">Stat Card here</div>
+            <StatCard item={props.selectedBullet} type={StatCardTypes.BULLET}/>
           </div>
         </div>
   )

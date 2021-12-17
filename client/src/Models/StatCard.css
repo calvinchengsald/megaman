@@ -1,0 +1,43 @@
+
+.stat-card{
+    min-width: 40%;
+    max-width: 40%;
+    background: lightblue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.stat-card-top-bot{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.centered-main-text{
+    text-align: center;
+    font-size: 40px;
+}
+
+
+.stat-card-item-icon{
+    width: 150px;
+    height: 150px;
+}
+.stat-card-bullet-icon{
+    width: 80px;
+    height: 80px;
+    border-style: solid;
+    border-width:  5px;
+    border-radius: 15px;
+    margin: 5px;
+}
+  
+.stat-card-rarity{
+    border-style: solid;
+    border-width:  8px;
+    border-radius: 15px;
+}

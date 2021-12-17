@@ -56,17 +56,31 @@ io.on('connection', (socket) => {
             weapons: [
                 {
                     id: uuidv4(),
-                    rarity: Rarity.COMMON
+                    rarity: Rarity.COMMON,
+                    type: "Shotgun",
+                    slots: 5,
+                    bullets: ["1"]
                 },
                 {
                     id: uuidv4(),
-                    rarity: Rarity.RARE
+                    rarity: Rarity.RARE,
+                    type: "Shotgun",
+                    slots: 5
+                },
+                {
+                    id: uuidv4(),
+                    rarity: Rarity.RARE,
+                    type: "Shotgun",
+                    slots: 10
                 }
             ],
             bullets: [
                 {
-                    id: uuidv4(),
-                    rarity: Rarity.UNCOMMON
+                    id: "1",
+                    type: "Burst",
+                    rarity: Rarity.UNCOMMON,
+                    damage: 1,
+                    reloadSpeed: 0.8
                 },
                 {
                     id: uuidv4(),
