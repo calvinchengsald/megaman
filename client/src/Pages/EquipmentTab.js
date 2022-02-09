@@ -15,7 +15,7 @@ const EquipmentTab = (props) => {
                 <img onClick={()=>props.setSelectedWeapon(weapon)} className={"item-icon rarity rarity-" +weapon.rarity + (props.selectedWeapon&&props.selectedWeapon.id===weapon.id?" selected":"")} src={shotgun}/>
               )}
             </div>
-            <StatCard item={props.selectedWeapon} setSelectedBullet={props.setSelectedBullet} selectedBullet={props.selectedBullet} type={StatCardTypes.WEAPON} bullets={props.player.bullets}/>
+            <StatCard item={props.selectedWeapon} setSelectedBullet={props.setSelectedBullet} setWeaponBulletRelationship={props.setWeaponBulletRelationship} selectedBullet={props.selectedBullet} type={StatCardTypes.WEAPON} bullets={props.player.bullets}/>
           </div>
           <div className="bullet-container">
             <div className="inventory">
@@ -24,7 +24,7 @@ const EquipmentTab = (props) => {
                 <img onClick={()=>props.setSelectedBullet(bullet)} className={"item-icon rarity rarity-" +bullet.rarity + (props.selectedBullet&&props.selectedBullet.id===bullet.id?" selected":"")} src={burst}/>
               )}
             </div>
-            <StatCard item={props.selectedBullet} type={StatCardTypes.BULLET}/>
+            <StatCard item={props.selectedBullet} type={StatCardTypes.BULLET} selectedWeapon={props.selectedWeapon} setWeaponBulletRelationship={props.setWeaponBulletRelationship}/>
           </div>
         </div>
   )

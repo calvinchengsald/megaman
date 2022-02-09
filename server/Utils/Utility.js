@@ -36,6 +36,16 @@ function removeElementFromArrayByKey( array , primaryKeyName, primaryKeyValue) {
     return newArray;
 }
 
+function removeElementFromArray( array, value) {
+    var newArray = [];
+    for ( var i = 0; i < array.length; i++) {
+        if (array[i] !== value) {
+            newArray.push(array[i]);
+        }
+    }
+    return newArray;
+}
+
 /**
  * Checks if this x/y coordinate does not exist inside any boundary in 'boundaryArray'
  * WARNING: this method assumes boundaries are created with the top-left point as Coordinate0 and bot-right point as Coordinate1
@@ -94,6 +104,7 @@ module.exports = {
     existsInArray: existsInArray,
     existsInObject: existsInObject,
     removeElementFromArrayByKey: removeElementFromArrayByKey,
+    removeElementFromArray: removeElementFromArray,
     getFromArray: getFromArray,
     isWithinPlayableArea: isWithinPlayableArea,
     isWithinPlayableAreaKillZone: isWithinPlayableAreaKillZone

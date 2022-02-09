@@ -134,3 +134,20 @@
   border: solid turquoise 15px;
   height: 95%;
 }
+
+
+
+.general-button{
+  border-style: solid;
+  width: 150px;
+  height: 50px;
+  border-width:  2px;
+  border-radius: 15px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  border-color: blue;
+  background: rgb(93, 199, 80);
+}

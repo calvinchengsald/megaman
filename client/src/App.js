@@ -42,6 +42,7 @@ function App() {
     setSocket(newSocket)
     defaultSocket = newSocket;
     newSocket.on('message', messageListener);
+    newSocket.on('EQUIPMENT_INPUT', handleUpdateEquipment);
     newSocket.on('ROOM_UPDATE', handleUpdateRoom);
     newSocket.on('ROOM_UPDATE_LEAVE', handleUpdateRoomLeave);
     newSocket.on('ERROR', handleError);
@@ -55,6 +56,12 @@ function App() {
     // console.log(messageJson.room.attacks);
     setCurrentRoom(messageJson.room)
   };
+
+  const handleUpdateEquipment = (message) => {
+    const messageJson = JSON.parse(message)
+    console.log(messageJson)
+    setPlayer(messageJson)
+  }
   
   const handleUpdateRoomLeave = (message) => {
     console.log("message from " + "ROOM_UPDATE_LEAVE");
@@ -203,6 +210,14 @@ function App() {
       setErrorShow(false)
     }
   }
+  const setWeaponBulletRelationship = (weaponId, bulletId, action) => {
+    const jsonObj = {
+      weaponId: weaponId,
+      bulletId: bulletId,
+      equipmentAction: action
+    };
+    emitMsg(ClientMessageActions.EQUIPMENT_INPUT, jsonObj);
+  }
 
   // useEffect(() => {
   //   return () => socket?socket.close():console.log('no socket to close');
@@ -212,6 +227,7 @@ function App() {
   let EquipmentFragment = <EquipmentTab setSelectedWeapon={setSelectedWeapon} setSelectedBullet={setSelectedBullet} player={player}
                             selectedWeapon={selectedWeapon}
                             selectedBullet={selectedBullet}
+                            setWeaponBulletRelationship={setWeaponBulletRelationship}
                           />
   let MenuFragment = 
     <React.Fragment>

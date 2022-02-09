@@ -6,5 +6,13 @@ export const ClientMessageActions = {
     CREATE_ROOM: "CREATE_ROOM",
     JOIN_ROOM: "JOIN_ROOM",
     LEAVE_ROOM: "LEAVE_ROOM",
-    PLAYER_INPUT: "PLAYER_INPUT"
+    PLAYER_INPUT: "PLAYER_INPUT",
+    EQUIPMENT_INPUT: "EQUIPMENT_INPUT"
+}
+
+
+
+export const EquipmentActions = {
+    UNLOAD: "UNLOAD",
+    LOAD: "LOAD"
 }

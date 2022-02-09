@@ -6,6 +6,8 @@ import burst from '../resources/bullets/burst.png'
 import empty from '../resources/bullets/empty.png'
 import './StatCard.css';
 import {getFromArray} from "../Utils/Utility";
+import { EquipmentActions } from '../Constants/ClientMessageActions'
+
 const StatCard = (props) => {
     const emptyBullets = []
     if(props.item){
@@ -50,6 +52,20 @@ const StatCard = (props) => {
                                     <div>Damage: {props.item.damage}</div>
                                     <div>Reload Speed: {props.item.reloadSpeed}</div>
                                 </div>
+                            </div>
+                            
+                            <div className={"stat-card-top-bot"}>
+                                {props.selectedWeapon? 
+                                <React.Fragment>
+                                    {props.item.weaponId==props.selectedWeapon.id?
+                                        <div className="general-button" onClick={()=>props.setWeaponBulletRelationship(props.item.weaponId, props.item.id, EquipmentActions.UNLOAD)}>Unload</div>
+                                        :
+                                        <div className="general-button" onClick={()=>props.setWeaponBulletRelationship(props.selectedWeapon.id, props.item.id, EquipmentActions.LOAD)}>Load</div>
+                                    }
+                                </React.Fragment>
+                                :
+                                <React.Fragment></React.Fragment>
+                                }
                             </div>
                         </React.Fragment>
                     }

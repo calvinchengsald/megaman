@@ -84,9 +84,13 @@ TODO:
 	joining middle of game?
 	clean up frontend so press logic is seperated from app.js
 	seperate backend logic so that central game logic is not duplicated in NoEscape and TeamFight
-	implement bullet load and unloading
+	implement primary and secondary weapon selection
+	ui is not reflecting the loading and unloaded state
 	
 COMPLETED
+	2/8
+	implement bullet load and unloading
+	
 	12/16
 	stat card screen for weapon and bullets
 	show weapon and all loaded  bullets

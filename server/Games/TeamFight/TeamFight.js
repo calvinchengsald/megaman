@@ -178,7 +178,7 @@ class TeamFight {
         this.room.rightTeam.attacks=this.handleAttackAnimationAndMovement(this.room.rightTeam.attacks, TeamConstants.RIGHT)
 
         //check for game over
-        this.gameOver()
+        this.checkGameOver()
     }
     
     killPlayer(player){
@@ -439,7 +439,7 @@ class TeamFight {
 
     
     //checks if the conditions are met to end this game
-    gameOver(){
+    checkGameOver(){
         //all players are dead?
         var havePlayerAliveLeft = false
         const leftPlayers = this.room.leftTeam.players
@@ -456,13 +456,12 @@ class TeamFight {
             }
         }
 
-        if(havePlayerAliveLeft || havePlayerAliveRight){
-            // not game over - nothing to do
-            return
+        if(!havePlayerAliveLeft || !havePlayerAliveRight){
+            //game over - end the game
+            this.end()
         }
 
-        //game over - end the game
-        this.end()
+        return
     }
 }
 

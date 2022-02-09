@@ -1,6 +1,6 @@
 
 const { v4: uuidv4 } = require('uuid');
-const { ClientMessageActions: ClientMessageActions }  = require('./Constants/ClientMessageActions');
+const { ClientMessageActions: ClientMessageActions, EquipmentActions }  = require('./Constants/ClientMessageActions');
 const { ServerMessageActions: ServerMessageActions }  = require('./Constants/ServerMessageActions');
 const { GameModes, RoomState, PlayerState, PlayerInputOptions, PlayerDetailOptions, Rarity }  = require('./Constants/GameBoardConstants');
 const { NoEscape: NoEscape }  = require('./Games/NoEscape/NoEscape');
@@ -13,6 +13,7 @@ const http = require('http');
 const cors = require('cors');
 var socketio = require('socket.io');
 const { Console } = require('console');
+const { Client } = require('socket.io/dist/client');
 const server = http.createServer(app);
 var io = socketio(server,{
     cors: {
@@ -43,6 +44,7 @@ io.on('connection', (socket) => {
     socket.on(ClientMessageActions.JOIN_ROOM, (value) => handleJoinRoom(value));
     socket.on(ClientMessageActions.LEAVE_ROOM, (value) => handleLeaveRoom(value));
     socket.on(ClientMessageActions.PLAYER_INPUT, (value) => handlePlayerInput(value));
+    socket.on(ClientMessageActions.EQUIPMENT_INPUT, (value) => handleEquipmentInput(value));
     // socket.on('message', (value) => handleMessage(value));
     socket.on('connect_error', (err) => {
         console.log(`connect_error due to ${err.message}`);
@@ -55,7 +57,7 @@ io.on('connection', (socket) => {
         player: {
             weapons: [
                 {
-                    id: uuidv4(),
+                    id: "1",
                     rarity: Rarity.COMMON,
                     type: "Shotgun",
                     slots: 5,
@@ -65,13 +67,15 @@ io.on('connection', (socket) => {
                     id: uuidv4(),
                     rarity: Rarity.RARE,
                     type: "Shotgun",
-                    slots: 5
+                    slots: 5,
+                    bullets: []
                 },
                 {
                     id: uuidv4(),
                     rarity: Rarity.RARE,
                     type: "Shotgun",
-                    slots: 10
+                    slots: 10,
+                    bullets: []
                 }
             ],
             bullets: [
@@ -80,7 +84,8 @@ io.on('connection', (socket) => {
                     type: "Burst",
                     rarity: Rarity.UNCOMMON,
                     damage: 1,
-                    reloadSpeed: 0.8
+                    reloadSpeed: 0.8,
+                    weaponId: "1"
                 },
                 {
                     id: uuidv4(),
@@ -125,6 +130,38 @@ function initializeDefaultPlayer(client){
 
 function emitError(clientId, errorMessage){
     clients[clientId].socket.emit(ServerMessageActions.ERROR, JSON.stringify(Utility.basicJson("message", errorMessage)))
+}
+
+function handleEquipmentInput(message){
+    const messageJson = JSON.parse(message)
+    console.log(messageJson)
+    const targetPlayer = clients[messageJson.clientId];
+    if(!targetPlayer || !targetPlayer.player.weapons || !targetPlayer.player.bullets){
+        emitError(messageJson.clientId, "Player with this id does not have the correct attributes")
+        return
+    }
+    if(!messageJson.equipmentAction){
+        emitError(messageJson.clientId, "No action specified with this request")
+        return
+    }
+    const targetWeapon = Utility.getFromArray(targetPlayer.player.weapons, "id", messageJson.weaponId)
+    const targetBullet = Utility.getFromArray(targetPlayer.player.bullets, "id", messageJson.bulletId)
+    if(!targetWeapon || !targetBullet){
+        emitError(messageJson.clientId, "Target weapon and bullet must exists")
+        return
+    }
+    if(messageJson.equipmentAction==EquipmentActions.LOAD){
+        targetWeapon.bullets.push(messageJson.bulletId)
+        targetBullet.weaponId=messageJson.weaponId
+    }
+    if(messageJson.equipmentAction==EquipmentActions.UNLOAD){
+        targetWeapon.bullets=Utility.removeElementFromArray(targetWeapon.bullets, messageJson.bulletId)
+        targetBullet.weaponId=null
+    }
+    clients[messageJson.clientId].socket.emit(ServerMessageActions.EQUIPMENT_INPUT, JSON.stringify(targetPlayer.player))
+                               
+    
+    // no need to do any processing for the rooms?
 }
 
 function handlePlayerInput(message){
