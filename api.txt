@@ -142,4 +142,4 @@ COMPLETED
 	
 	12/2
 	high score - keep track of score
-	name of player
+	name of player 
